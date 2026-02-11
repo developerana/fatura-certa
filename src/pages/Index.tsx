@@ -3,6 +3,7 @@ import { InvoiceWithStatus, InvoiceCategory, InvoiceStatus } from '@/types/invoi
 import { getInvoicesWithStatus } from '@/store/invoiceStore';
 import { DashboardCards } from '@/components/DashboardCards';
 import { CategoryChart } from '@/components/CategoryChart';
+import { CardChart } from '@/components/CardChart';
 import { InvoiceList } from '@/components/InvoiceList';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { PaymentDialog } from '@/components/PaymentDialog';
@@ -81,9 +82,10 @@ const Index = () => {
         {/* Dashboard Cards */}
         <DashboardCards referenceMonth={referenceMonth} />
 
-        {/* Chart + Upcoming */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Charts + Upcoming */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <CategoryChart referenceMonth={referenceMonth} />
+          <CardChart referenceMonth={referenceMonth} />
 
           <div className="glass-card p-6">
             <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">

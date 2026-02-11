@@ -144,3 +144,15 @@ export function getCategoryBreakdown(referenceMonth: string) {
     value,
   }));
 }
+
+export function getCardBreakdown(referenceMonth: string) {
+  const invoices = getInvoicesWithStatus().filter(i => i.referenceMonth === referenceMonth && i.card);
+  
+  const breakdown: Record<string, number> = {};
+  invoices.forEach(i => {
+    const card = i.card!;
+    breakdown[card] = (breakdown[card] || 0) + i.totalAmount;
+  });
+  
+  return Object.entries(breakdown).map(([card, value]) => ({ card, value }));
+}
