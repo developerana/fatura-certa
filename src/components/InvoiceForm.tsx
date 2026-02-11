@@ -25,6 +25,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
   const [card, setCard] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [notes, setNotes] = useState('');
+  const [installments, setInstallments] = useState('1');
   const [showCustomCard, setShowCustomCard] = useState(false);
   const [customCard, setCustomCard] = useState('');
 
@@ -44,7 +45,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
         setNotes(editInvoice.notes || '');
       } else {
         setDescription(''); setCategory('outros'); setTotalAmount(''); setDueDate('');
-        setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setNotes('');
+        setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setNotes(''); setInstallments('1');
       }
     }
   }, [open, editInvoice, defaultMonth]);
@@ -62,6 +63,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
       referenceMonth,
       card: card || undefined,
       paymentMethod: paymentMethod.trim() || undefined,
+      installments: parseInt(installments) || 1,
     };
 
     try {
@@ -70,7 +72,8 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
         toast.success('Fatura atualizada!');
       } else {
         await addInvoice.mutateAsync(data);
-        toast.success('Fatura cadastrada!');
+        const n = data.installments;
+        toast.success(n > 1 ? `${n} parcelas cadastradas!` : 'Fatura cadastrada!');
       }
       onOpenChange(false);
     } catch (err: any) {
@@ -104,15 +107,34 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
               <Input id="amount" type="number" step="0.01" min="0.01" value={totalAmount} onChange={e => setTotalAmount(e.target.value)} placeholder="0,00" required />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <Label htmlFor="dueDate">Vencimento *</Label>
               <Input id="dueDate" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
             </div>
             <div>
-              <Label htmlFor="refMonth">Mês Referência *</Label>
+              <Label htmlFor="refMonth">Mês Ref. *</Label>
               <Input id="refMonth" type="month" value={referenceMonth} onChange={e => setReferenceMonth(e.target.value)} required />
             </div>
+            {!editInvoice && (
+              <div>
+                <Label htmlFor="installments">Parcelas</Label>
+                <Input
+                  id="installments"
+                  type="number"
+                  min="1"
+                  max="48"
+                  value={installments}
+                  onChange={e => setInstallments(e.target.value)}
+                  placeholder="1"
+                />
+                {parseInt(installments) > 1 && totalAmount && (
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {parseInt(installments)}x de {(parseFloat(totalAmount) / parseInt(installments)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

@@ -70,11 +70,13 @@ export interface Invoice {
   description: string;
   category: InvoiceCategory;
   totalAmount: number;
-  dueDate: string; // ISO date
-  referenceMonth: string; // YYYY-MM format
+  dueDate: string;
+  referenceMonth: string;
   card?: string;
   paymentMethod?: string;
   notes?: string;
+  installments?: number;
+  installmentNumber?: number;
   createdAt: string;
 }
 
