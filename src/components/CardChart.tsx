@@ -18,7 +18,7 @@ export function CardChart({ referenceMonth, invoices }: CardChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="glass-card p-6">
+      <div className="glass-card p-4 sm:p-6">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Gastos por Cartão</h3>
         <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">Nenhuma fatura com cartão neste mês</div>
       </div>
@@ -26,7 +26,7 @@ export function CardChart({ referenceMonth, invoices }: CardChartProps) {
   }
 
   return (
-    <div className="glass-card p-6">
+    <div className="glass-card p-4 sm:p-6">
       <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Gastos por Cartão</h3>
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">

@@ -22,14 +22,14 @@ export function DashboardCards({ referenceMonth, invoices }: DashboardCardsProps
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
       {cards.map((card, i) => (
-        <div key={card.title} className={`${card.className} p-5 animate-fade-in`} style={{ animationDelay: `${i * 80}ms` }}>
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm text-muted-foreground font-medium">{card.title}</span>
+        <div key={card.title} className={`${card.className} p-3 sm:p-5 animate-fade-in`} style={{ animationDelay: `${i * 80}ms` }}>
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-xs sm:text-sm text-muted-foreground font-medium">{card.title}</span>
             <card.icon className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="text-2xl font-bold font-mono tracking-tight">{card.value}</div>
+          <div className="text-lg sm:text-2xl font-bold font-mono tracking-tight">{card.value}</div>
           <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
         </div>
       ))}
