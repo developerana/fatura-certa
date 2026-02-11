@@ -28,6 +28,7 @@ interface InvoiceListProps {
   onRefresh: () => void;
   filterStatus: InvoiceStatus | 'all';
   filterCategory: InvoiceCategory | 'all';
+  filterCard: string;
 }
 
 function formatCurrency(value: number) {
@@ -45,12 +46,13 @@ const statusClass: Record<InvoiceStatus, string> = {
   pending: 'status-pending',
 };
 
-export function InvoiceList({ invoices, onPayment, onEdit, onRefresh, filterStatus, filterCategory }: InvoiceListProps) {
+export function InvoiceList({ invoices, onPayment, onEdit, onRefresh, filterStatus, filterCategory, filterCard }: InvoiceListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = invoices.filter(inv => {
     if (filterStatus !== 'all' && inv.status !== filterStatus) return false;
     if (filterCategory !== 'all' && inv.category !== filterCategory) return false;
+    if (filterCard !== 'all' && (inv.card || '') !== filterCard) return false;
     return true;
   });
 
