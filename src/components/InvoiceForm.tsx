@@ -1,34 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Invoice, InvoiceCategory, CATEGORY_LABELS, getCardOptions, addCardOption } from '@/types/invoice';
-import { addInvoice, updateInvoice } from '@/store/invoiceStore';
+import { useAddInvoice, useUpdateInvoice } from '@/hooks/useInvoices';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 interface InvoiceFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSaved: () => void;
   editInvoice?: Invoice | null;
   defaultMonth: string;
 }
 
-export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultMonth }: InvoiceFormProps) {
+export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: InvoiceFormProps) {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<InvoiceCategory>('outros');
   const [totalAmount, setTotalAmount] = useState('');
@@ -39,6 +27,9 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
   const [notes, setNotes] = useState('');
   const [showCustomCard, setShowCustomCard] = useState(false);
   const [customCard, setCustomCard] = useState('');
+
+  const addInvoice = useAddInvoice();
+  const updateInvoice = useUpdateInvoice();
 
   useEffect(() => {
     if (open) {
@@ -52,21 +43,14 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
         setPaymentMethod(editInvoice.paymentMethod || '');
         setNotes(editInvoice.notes || '');
       } else {
-        setDescription('');
-        setCategory('outros');
-        setTotalAmount('');
-        setDueDate('');
-        setReferenceMonth(defaultMonth);
-        setCard('');
-        setPaymentMethod('');
-        setNotes('');
+        setDescription(''); setCategory('outros'); setTotalAmount(''); setDueDate('');
+        setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setNotes('');
       }
     }
   }, [open, editInvoice, defaultMonth]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const amount = parseFloat(totalAmount);
     if (!description.trim() || isNaN(amount) || amount <= 0 || !dueDate || !referenceMonth) return;
 
@@ -78,17 +62,20 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
       referenceMonth,
       card: card || undefined,
       paymentMethod: paymentMethod.trim() || undefined,
-      notes: notes.trim() || undefined,
     };
 
-    if (editInvoice) {
-      updateInvoice(editInvoice.id, data);
-    } else {
-      addInvoice(data);
+    try {
+      if (editInvoice) {
+        await updateInvoice.mutateAsync({ id: editInvoice.id, data });
+        toast.success('Fatura atualizada!');
+      } else {
+        await addInvoice.mutateAsync(data);
+        toast.success('Fatura cadastrada!');
+      }
+      onOpenChange(false);
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao salvar');
     }
-
-    onSaved();
-    onOpenChange(false);
   };
 
   return (
@@ -100,135 +87,64 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="description">Descrição *</Label>
-            <Input
-              id="description"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Ex: Conta de luz"
-              maxLength={100}
-              required
-            />
+            <Input id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Ex: Conta de luz" maxLength={100} required />
           </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Categoria *</Label>
               <Select value={category} onValueChange={(v) => setCategory(v as InvoiceCategory)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
+                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (<SelectItem key={key} value={key}>{label}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label htmlFor="amount">Valor Total *</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={totalAmount}
-                onChange={e => setTotalAmount(e.target.value)}
-                placeholder="0,00"
-                required
-              />
+              <Input id="amount" type="number" step="0.01" min="0.01" value={totalAmount} onChange={e => setTotalAmount(e.target.value)} placeholder="0,00" required />
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="dueDate">Vencimento *</Label>
-              <Input
-                id="dueDate"
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-                required
-              />
+              <Input id="dueDate" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
             </div>
             <div>
               <Label htmlFor="refMonth">Mês Referência *</Label>
-              <Input
-                id="refMonth"
-                type="month"
-                value={referenceMonth}
-                onChange={e => setReferenceMonth(e.target.value)}
-                required
-              />
+              <Input id="refMonth" type="month" value={referenceMonth} onChange={e => setReferenceMonth(e.target.value)} required />
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Cartão</Label>
-              <div className="flex gap-2">
-                <Select value={card || 'none'} onValueChange={(v) => { if (v === 'custom') { setShowCustomCard(true); } else { setCard(v === 'none' ? '' : v); } }}>
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Selecione o cartão" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhum</SelectItem>
-                    {getCardOptions().map(c => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                    <SelectItem value="custom">+ Adicionar cartão</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select value={card || 'none'} onValueChange={(v) => { if (v === 'custom') { setShowCustomCard(true); } else { setCard(v === 'none' ? '' : v); } }}>
+                <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione o cartão" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {getCardOptions().map(c => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                  <SelectItem value="custom">+ Adicionar cartão</SelectItem>
+                </SelectContent>
+              </Select>
               {showCustomCard && (
                 <div className="flex gap-2 mt-2">
-                  <Input
-                    value={customCard}
-                    onChange={e => setCustomCard(e.target.value)}
-                    placeholder="Nome do cartão"
-                    maxLength={30}
-                    className="flex-1"
-                  />
-                  <Button type="button" size="sm" onClick={() => {
-                    if (customCard.trim()) {
-                      addCardOption(customCard.trim());
-                      setCard(customCard.trim());
-                      setCustomCard('');
-                      setShowCustomCard(false);
-                    }
-                  }}>OK</Button>
+                  <Input value={customCard} onChange={e => setCustomCard(e.target.value)} placeholder="Nome do cartão" maxLength={30} className="flex-1" />
+                  <Button type="button" size="sm" onClick={() => { if (customCard.trim()) { addCardOption(customCard.trim()); setCard(customCard.trim()); setCustomCard(''); setShowCustomCard(false); } }}>OK</Button>
                 </div>
               )}
             </div>
             <div>
               <Label htmlFor="paymentMethod">Forma de Pagamento</Label>
-              <Input
-                id="paymentMethod"
-                value={paymentMethod}
-                onChange={e => setPaymentMethod(e.target.value)}
-                placeholder="Ex: PIX, Boleto, Débito"
-                maxLength={50}
-              />
+              <Input id="paymentMethod" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} placeholder="Ex: PIX, Boleto, Débito" maxLength={50} />
             </div>
           </div>
-
           <div>
             <Label htmlFor="notes">Observações</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="Notas adicionais..."
-              maxLength={500}
-              rows={2}
-            />
+            <Textarea id="notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Notas adicionais..." maxLength={500} rows={2} />
           </div>
-
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit">
-              {editInvoice ? 'Salvar' : 'Cadastrar'}
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+            <Button type="submit" disabled={addInvoice.isPending || updateInvoice.isPending}>
+              {addInvoice.isPending || updateInvoice.isPending ? 'Salvando...' : editInvoice ? 'Salvar' : 'Cadastrar'}
             </Button>
           </DialogFooter>
         </form>

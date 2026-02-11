@@ -14,7 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      invoices: {
+        Row: {
+          card: string | null
+          category: string
+          created_at: string
+          description: string
+          due_date: string
+          id: string
+          payment_method: string | null
+          reference_month: string
+          total_amount: number
+          user_id: string
+        }
+        Insert: {
+          card?: string | null
+          category: string
+          created_at?: string
+          description: string
+          due_date: string
+          id?: string
+          payment_method?: string | null
+          reference_month: string
+          total_amount: number
+          user_id: string
+        }
+        Update: {
+          card?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          due_date?: string
+          id?: string
+          payment_method?: string | null
+          reference_month?: string
+          total_amount?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          id: string
+          invoice_id: string
+          is_early: boolean
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date: string
+          id?: string
+          invoice_id: string
+          is_early?: boolean
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          invoice_id?: string
+          is_early?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
