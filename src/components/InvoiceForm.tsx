@@ -163,8 +163,19 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
               )}
             </div>
             <div>
-              <Label htmlFor="paymentMethod">Forma de Pagamento</Label>
-              <Input id="paymentMethod" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} placeholder="Ex: PIX, Boleto, Débito" maxLength={50} />
+              <Label>Forma de Pagamento</Label>
+              <Select value={paymentMethod || 'none'} onValueChange={(v) => setPaymentMethod(v === 'none' ? '' : v)}>
+                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  <SelectItem value="PIX">PIX</SelectItem>
+                  <SelectItem value="Boleto">Boleto</SelectItem>
+                  <SelectItem value="Débito">Débito</SelectItem>
+                  <SelectItem value="Crédito">Crédito</SelectItem>
+                  <SelectItem value="Dinheiro">Dinheiro</SelectItem>
+                  <SelectItem value="Transferência">Transferência</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div>
