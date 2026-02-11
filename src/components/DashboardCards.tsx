@@ -1,4 +1,4 @@
-import { DollarSign, TrendingUp, Clock, AlertTriangle, FileText, CheckCircle } from 'lucide-react';
+import { DollarSign, TrendingUp, Clock, AlertTriangle, FileText, CheckCircle, Wallet } from 'lucide-react';
 import { useMonthSummary } from '@/hooks/useInvoices';
 import { InvoiceWithStatus } from '@/types/invoice';
 
@@ -14,11 +14,20 @@ function formatCurrency(value: number) {
 export function DashboardCards({ referenceMonth, invoices }: DashboardCardsProps) {
   const summary = useMonthSummary(referenceMonth, invoices);
 
+  // Total de todas as faturas abertas (do mês atual em diante)
+  const totalFutureDebt = invoices
+    .filter(i => i.referenceMonth >= referenceMonth && i.status !== 'paid')
+    .reduce((sum, i) => sum + i.remainingBalance, 0);
+
+  const futureUnpaidCount = invoices
+    .filter(i => i.referenceMonth >= referenceMonth && i.status !== 'paid').length;
+
   const cards = [
     { title: 'Total Previsto', value: formatCurrency(summary.totalExpected), subtitle: `${summary.invoiceCount} faturas`, icon: FileText, className: 'glass-card' },
     { title: 'Total Pago', value: formatCurrency(summary.totalPaid), subtitle: `${summary.paidCount} pagas`, icon: CheckCircle, className: 'glass-card border-status-paid/30' },
     { title: 'Saldo Pendente', value: formatCurrency(summary.totalPending), subtitle: 'a pagar', icon: Clock, className: 'glass-card' },
     { title: 'Atrasadas', value: String(summary.overdueCount), subtitle: summary.overdueCount > 0 ? 'atenção!' : 'tudo em dia', icon: summary.overdueCount > 0 ? AlertTriangle : TrendingUp, className: summary.overdueCount > 0 ? 'glass-card border-status-overdue/30' : 'glass-card' },
+    { title: 'Dívida Total', value: formatCurrency(totalFutureDebt), subtitle: `${futureUnpaidCount} faturas em aberto`, icon: Wallet, className: 'glass-card border-primary/20' },
   ];
 
   return (
