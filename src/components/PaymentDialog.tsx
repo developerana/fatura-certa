@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { CurrencyInput, centsToReal, realToCents } from '@/components/CurrencyInput';
 import { toast } from 'sonner';
 
 interface PaymentDialogProps {
@@ -18,7 +19,7 @@ interface PaymentDialogProps {
 function formatCurrency(value: number) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
 export function PaymentDialog({ open, onOpenChange, invoice }: PaymentDialogProps) {
-  const [amount, setAmount] = useState('');
+  const [amountCents, setAmountCents] = useState(0);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [isEarly, setIsEarly] = useState(false);
   const [notes, setNotes] = useState('');
@@ -29,15 +30,15 @@ export function PaymentDialog({ open, onOpenChange, invoice }: PaymentDialogProp
   const maxAmount = invoice.remainingBalance;
 
   const handleSubmit = async () => {
-    const parsedAmount = parseFloat(amount.replace(',', '.'));
-    if (isNaN(parsedAmount) || parsedAmount <= 0) { toast.error('Informe um valor válido'); return; }
+    const parsedAmount = centsToReal(amountCents);
+    if (parsedAmount <= 0) { toast.error('Informe um valor válido'); return; }
     if (parsedAmount > maxAmount) { toast.error(`Valor não pode exceder ${formatCurrency(maxAmount)}`); return; }
     if (!confirming) { setConfirming(true); return; }
 
     try {
       await addPayment.mutateAsync({ invoiceId: invoice.id, amount: parsedAmount, date, isEarly });
       toast.success(parsedAmount >= maxAmount ? 'Fatura paga integralmente!' : `Pagamento de ${formatCurrency(parsedAmount)} registrado`);
-      setAmount(''); setDate(new Date().toISOString().split('T')[0]); setIsEarly(false); setNotes(''); setConfirming(false);
+      setAmountCents(0); setDate(new Date().toISOString().split('T')[0]); setIsEarly(false); setNotes(''); setConfirming(false);
       onOpenChange(false);
     } catch { toast.error('Erro ao registrar pagamento'); setConfirming(false); }
   };
@@ -70,10 +71,10 @@ export function PaymentDialog({ open, onOpenChange, invoice }: PaymentDialogProp
         <div className="space-y-3">
           <div>
             <div className="flex items-center justify-between mb-1">
-              <Label htmlFor="payAmount">Valor do Pagamento *</Label>
-              <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => setAmount(maxAmount.toFixed(2))}>Pagar total</Button>
+              <Label>Valor do Pagamento *</Label>
+              <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => { setAmountCents(realToCents(maxAmount)); setConfirming(false); }}>Pagar total</Button>
             </div>
-            <Input id="payAmount" type="text" inputMode="decimal" value={amount} onChange={e => { const v = e.target.value.replace(/[^0-9.,]/g, ''); setAmount(v); setConfirming(false); }} placeholder="0,00" />
+            <CurrencyInput value={amountCents} onValueChange={(v) => { setAmountCents(v); setConfirming(false); }} />
           </div>
           <div><Label htmlFor="payDate">Data do Pagamento *</Label><Input id="payDate" type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
           <div className="flex items-center space-x-2">

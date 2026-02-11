@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { CurrencyInput, centsToReal, realToCents } from '@/components/CurrencyInput';
 import { toast } from 'sonner';
 
 interface InvoiceFormProps {
@@ -19,7 +20,7 @@ interface InvoiceFormProps {
 export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: InvoiceFormProps) {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<InvoiceCategory>('outros');
-  const [totalAmount, setTotalAmount] = useState('');
+  const [amountCents, setAmountCents] = useState(0);
   const [dueDate, setDueDate] = useState('');
   const [referenceMonth, setReferenceMonth] = useState(defaultMonth);
   const [card, setCard] = useState('');
@@ -37,14 +38,14 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
       if (editInvoice) {
         setDescription(editInvoice.description);
         setCategory(editInvoice.category);
-        setTotalAmount(editInvoice.totalAmount.toString());
+        setAmountCents(realToCents(editInvoice.totalAmount));
         setDueDate(editInvoice.dueDate);
         setReferenceMonth(editInvoice.referenceMonth);
         setCard(editInvoice.card || '');
         setPaymentMethod(editInvoice.paymentMethod || '');
         setNotes(editInvoice.notes || '');
       } else {
-        setDescription(''); setCategory('outros'); setTotalAmount(''); setDueDate('');
+        setDescription(''); setCategory('outros'); setAmountCents(0); setDueDate('');
         setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setNotes(''); setInstallments('1');
       }
     }
@@ -52,8 +53,8 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(totalAmount.replace(',', '.'));
-    if (!description.trim() || isNaN(amount) || amount <= 0 || !dueDate || !referenceMonth) return;
+    const amount = centsToReal(amountCents);
+    if (!description.trim() || amount <= 0 || !dueDate || !referenceMonth) return;
 
     const data = {
       description: description.trim(),
@@ -81,6 +82,9 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
     }
   };
 
+  const installmentCount = parseInt(installments) || 1;
+  const totalReal = centsToReal(amountCents);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -103,11 +107,11 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
               </Select>
             </div>
             <div>
-              <Label htmlFor="amount">Valor Total *</Label>
-              <Input id="amount" type="text" inputMode="decimal" value={totalAmount} onChange={e => { const v = e.target.value.replace(/[^0-9.,]/g, ''); setTotalAmount(v); }} placeholder="0,00" required />
+              <Label>Valor Total *</Label>
+              <CurrencyInput value={amountCents} onValueChange={setAmountCents} />
             </div>
           </div>
-          <div className={`grid gap-3 ${!editInvoice ? 'grid-cols-2' : 'grid-cols-2'}`}>
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="dueDate">Vencimento *</Label>
               <Input id="dueDate" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
@@ -131,10 +135,10 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
                   placeholder="1"
                 />
               </div>
-              {parseInt(installments) > 1 && totalAmount && (
+              {installmentCount > 1 && amountCents > 0 && (
                 <div className="flex items-end pb-2">
                   <p className="text-xs text-muted-foreground">
-                    {parseInt(installments)}x de {(parseFloat(totalAmount.replace(',', '.')) / parseInt(installments)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    {installmentCount}x de {(totalReal / installmentCount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </p>
                 </div>
               )}
