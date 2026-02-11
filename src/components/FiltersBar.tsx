@@ -6,7 +6,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+const MONTH_NAMES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+];
+
+function formatMonthLabel(month: string) {
+  const [year, m] = month.split('-');
+  return `${MONTH_NAMES[parseInt(m) - 1]} ${year}`;
+}
+
+function shiftMonth(month: string, delta: number): string {
+  const [year, m] = month.split('-').map(Number);
+  const date = new Date(year, m - 1 + delta, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
 
 interface FiltersBarProps {
   referenceMonth: string;
@@ -31,13 +48,16 @@ export function FiltersBar({
 }: FiltersBarProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div>
-        <Input
-          type="month"
-          value={referenceMonth}
-          onChange={e => onMonthChange(e.target.value)}
-          className="h-9 text-sm w-36"
-        />
+      <div className="flex items-center gap-1">
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMonthChange(shiftMonth(referenceMonth, -1))}>
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="text-sm font-medium w-36 text-center select-none">
+          {formatMonthLabel(referenceMonth)}
+        </span>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMonthChange(shiftMonth(referenceMonth, 1))}>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
       <Select value={filterStatus} onValueChange={(v) => onStatusChange(v as InvoiceStatus | 'all')}>
         <SelectTrigger className="w-36 h-9">
