@@ -31,12 +31,12 @@ export function FiltersBar({
 }: FiltersBarProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="w-40">
+      <div>
         <Input
           type="month"
           value={referenceMonth}
           onChange={e => onMonthChange(e.target.value)}
-          className="h-9 text-sm"
+          className="h-9 text-sm w-36"
         />
       </div>
       <Select value={filterStatus} onValueChange={(v) => onStatusChange(v as InvoiceStatus | 'all')}>
