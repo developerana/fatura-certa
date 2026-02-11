@@ -22,7 +22,7 @@ export function CategoryChart({ referenceMonth, invoices }: CategoryChartProps) 
 
   if (data.length === 0) {
     return (
-      <div className="glass-card p-6">
+      <div className="glass-card p-4 sm:p-6">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Gastos por Categoria</h3>
         <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">Nenhuma fatura neste mês</div>
       </div>
@@ -33,10 +33,10 @@ export function CategoryChart({ referenceMonth, invoices }: CategoryChartProps) 
   const total = chartData.reduce((sum, d) => sum + d.value, 0);
 
   return (
-    <div className="glass-card p-6">
+    <div className="glass-card p-4 sm:p-6">
       <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Gastos por Categoria</h3>
-      <div className="flex items-center gap-6">
-        <div className="w-40 h-40 flex-shrink-0">
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <div className="w-32 h-32 sm:w-40 sm:h-40 flex-shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie data={chartData} cx="50%" cy="50%" innerRadius={35} outerRadius={65} paddingAngle={3} dataKey="value" strokeWidth={0}>

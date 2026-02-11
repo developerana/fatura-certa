@@ -63,20 +63,20 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Receipt className="h-5 w-5 text-primary" />
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Receipt className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight">Controle de Faturas</h1>
-              <p className="text-xs text-muted-foreground">{formatMonthLabel(referenceMonth)}</p>
+            <div className="min-w-0">
+              <h1 className="text-sm sm:text-lg font-bold tracking-tight truncate">Controle de Faturas</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{formatMonthLabel(referenceMonth)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <ThemeToggle />
-            <Button onClick={() => { setEditInvoice(null); setFormOpen(true); }} size="sm">
-              <Plus className="h-4 w-4 mr-1" /> Nova Fatura
+            <Button onClick={() => { setEditInvoice(null); setFormOpen(true); }} size="sm" className="text-xs sm:text-sm px-2 sm:px-3">
+              <Plus className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Nova Fatura</span>
             </Button>
             <Button variant="ghost" size="icon" onClick={signOut} title="Sair">
               <LogOut className="h-4 w-4" />
@@ -85,14 +85,14 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <DashboardCards referenceMonth={referenceMonth} invoices={allInvoices} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
           <CategoryChart referenceMonth={referenceMonth} invoices={allInvoices} />
           <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
 
-          <div className="glass-card p-6">
+          <div className="glass-card p-4 sm:p-6">
             <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">
               Próximos Vencimentos
             </h3>
