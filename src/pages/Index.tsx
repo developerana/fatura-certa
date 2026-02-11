@@ -5,7 +5,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { DashboardCards } from '@/components/DashboardCards';
 import { CategoryChart } from '@/components/CategoryChart';
 import { CardChart } from '@/components/CardChart';
-import { FinancialIndexCard } from '@/components/FinancialIndexCard';
 import { InvoiceList } from '@/components/InvoiceList';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { PaymentDialog } from '@/components/PaymentDialog';
@@ -94,8 +93,8 @@ const Index = () => {
       <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <DashboardCards referenceMonth={referenceMonth} invoices={allInvoices} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4">
-          <FinancialIndexCard referenceMonth={referenceMonth} invoices={allInvoices} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+
           <CategoryChart referenceMonth={referenceMonth} invoices={allInvoices} />
           <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
 
