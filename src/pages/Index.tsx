@@ -9,6 +9,7 @@ import { PaymentDialog } from '@/components/PaymentDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
 import { Plus, Receipt } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 function getCurrentMonth() {
   const now = new Date();
@@ -67,9 +68,12 @@ const Index = () => {
               <p className="text-xs text-muted-foreground">{formatMonthLabel(referenceMonth)}</p>
             </div>
           </div>
-          <Button onClick={() => { setEditInvoice(null); setFormOpen(true); }} size="sm">
-            <Plus className="h-4 w-4 mr-1" /> Nova Fatura
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button onClick={() => { setEditInvoice(null); setFormOpen(true); }} size="sm">
+              <Plus className="h-4 w-4 mr-1" /> Nova Fatura
+            </Button>
+          </div>
         </div>
       </header>
 
