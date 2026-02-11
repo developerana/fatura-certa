@@ -75,6 +75,11 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterC
                     <div><span className="text-xs text-muted-foreground">Restante</span><p className={`font-mono text-sm font-medium ${isOverdue ? 'text-status-overdue' : ''}`}>{formatCurrency(inv.remainingBalance)}</p></div>
                   </div>
                   <Progress value={progress} className="h-1.5" />
+                  {inv.status !== 'paid' && (
+                    <Button variant="outline" size="sm" className="mt-3 text-xs" onClick={() => onPayment(inv)}>
+                      <DollarSign className="h-3.5 w-3.5 mr-1" /> Registrar Pagamento
+                    </Button>
+                  )}
                 </div>
                 <TooltipProvider delayDuration={300}>
                   <div className="flex items-center gap-1 flex-shrink-0">
