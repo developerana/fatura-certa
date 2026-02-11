@@ -3,6 +3,35 @@ import { Invoice, Payment, InvoiceWithStatus, InvoiceStatus } from '@/types/invo
 const INVOICES_KEY = 'invoices';
 const PAYMENTS_KEY = 'payments';
 
+function seedDemoData() {
+  if (localStorage.getItem(INVOICES_KEY)) return;
+  
+  const now = new Date();
+  const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+
+  const invoices: Invoice[] = [
+    { id: 'demo1', description: 'Conta de Luz', category: 'energia', totalAmount: 350, dueDate: `${y}-${String(m).padStart(2,'0')}-15`, referenceMonth: month, card: 'Nubank', createdAt: new Date().toISOString() },
+    { id: 'demo2', description: 'Internet Fibra', category: 'internet', totalAmount: 150, dueDate: `${y}-${String(m).padStart(2,'0')}-20`, referenceMonth: month, card: 'Caixa', createdAt: new Date().toISOString() },
+    { id: 'demo3', description: 'Fatura Cartão', category: 'cartao', totalAmount: 1200, dueDate: `${y}-${String(m).padStart(2,'0')}-10`, referenceMonth: month, card: 'Nubank', createdAt: new Date().toISOString() },
+    { id: 'demo4', description: 'Supermercado', category: 'alimentacao', totalAmount: 800, dueDate: `${y}-${String(m).padStart(2,'0')}-18`, referenceMonth: month, card: 'Mercado Pago', createdAt: new Date().toISOString() },
+    { id: 'demo5', description: 'Aluguel', category: 'aluguel', totalAmount: 2000, dueDate: `${y}-${String(m).padStart(2,'0')}-05`, referenceMonth: month, paymentMethod: 'PIX', createdAt: new Date().toISOString() },
+    { id: 'demo6', description: 'Plano de Saúde', category: 'saude', totalAmount: 450, dueDate: `${y}-${String(m).padStart(2,'0')}-25`, referenceMonth: month, card: 'Caixa', createdAt: new Date().toISOString() },
+  ];
+
+  const payments: Payment[] = [
+    { id: 'dpay1', invoiceId: 'demo3', amount: 1200, date: `${y}-${String(m).padStart(2,'0')}-09`, isEarly: true },
+    { id: 'dpay2', invoiceId: 'demo5', amount: 2000, date: `${y}-${String(m).padStart(2,'0')}-04`, isEarly: true },
+    { id: 'dpay3', invoiceId: 'demo4', amount: 300, date: `${y}-${String(m).padStart(2,'0')}-12`, isEarly: false },
+  ];
+
+  localStorage.setItem(INVOICES_KEY, JSON.stringify(invoices));
+  localStorage.setItem(PAYMENTS_KEY, JSON.stringify(payments));
+}
+
+seedDemoData();
+
 function loadFromStorage<T>(key: string): T[] {
   try {
     const data = localStorage.getItem(key);
