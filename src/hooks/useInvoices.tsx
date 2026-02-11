@@ -13,6 +13,9 @@ interface DbInvoice {
   reference_month: string;
   card: string | null;
   payment_method: string | null;
+  installments: number | null;
+  installment_number: number | null;
+  installment_group: string | null;
   created_at: string;
 }
 
@@ -67,6 +70,8 @@ export function useInvoicesWithStatus() {
           referenceMonth: invoice.reference_month,
           card: invoice.card || undefined,
           paymentMethod: invoice.payment_method || undefined,
+          installments: invoice.installments || 1,
+          installmentNumber: invoice.installment_number || 1,
           createdAt: invoice.created_at,
           status: computeStatus(invoice, totalPaid),
           totalPaid,
@@ -85,6 +90,18 @@ export function useInvoicesWithStatus() {
   });
 }
 
+function shiftMonth(month: string, delta: number): string {
+  const [year, m] = month.split('-').map(Number);
+  const date = new Date(year, m - 1 + delta, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function shiftDate(dateStr: string, monthsDelta: number): string {
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setMonth(d.getMonth() + monthsDelta);
+  return d.toISOString().split('T')[0];
+}
+
 export function useAddInvoice() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -98,18 +115,30 @@ export function useAddInvoice() {
       referenceMonth: string;
       card?: string;
       paymentMethod?: string;
+      installments?: number;
     }) => {
       if (!user) throw new Error('Not authenticated');
-      const { error } = await supabase.from('invoices').insert({
+      const installments = data.installments && data.installments > 1 ? data.installments : 1;
+      const installmentGroup = installments > 1 ? crypto.randomUUID() : null;
+      const perInstallment = Math.round((data.totalAmount / installments) * 100) / 100;
+
+      const rows = Array.from({ length: installments }, (_, i) => ({
         user_id: user.id,
-        description: data.description,
+        description: installments > 1 ? `${data.description} (${i + 1}/${installments})` : data.description,
         category: data.category,
-        total_amount: data.totalAmount,
-        due_date: data.dueDate,
-        reference_month: data.referenceMonth,
+        total_amount: i === installments - 1
+          ? Math.round((data.totalAmount - perInstallment * (installments - 1)) * 100) / 100
+          : perInstallment,
+        due_date: shiftDate(data.dueDate, i),
+        reference_month: shiftMonth(data.referenceMonth, i),
         card: data.card || null,
         payment_method: data.paymentMethod || null,
-      });
+        installments,
+        installment_number: i + 1,
+        installment_group: installmentGroup,
+      }));
+
+      const { error } = await supabase.from('invoices').insert(rows);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices'] }),

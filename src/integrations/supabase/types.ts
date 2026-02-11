@@ -22,6 +22,9 @@ export type Database = {
           description: string
           due_date: string
           id: string
+          installment_group: string | null
+          installment_number: number | null
+          installments: number | null
           payment_method: string | null
           reference_month: string
           total_amount: number
@@ -34,6 +37,9 @@ export type Database = {
           description: string
           due_date: string
           id?: string
+          installment_group?: string | null
+          installment_number?: number | null
+          installments?: number | null
           payment_method?: string | null
           reference_month: string
           total_amount: number
@@ -46,6 +52,9 @@ export type Database = {
           description?: string
           due_date?: string
           id?: string
+          installment_group?: string | null
+          installment_number?: number | null
+          installments?: number | null
           payment_method?: string | null
           reference_month?: string
           total_amount?: number
