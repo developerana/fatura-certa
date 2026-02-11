@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { InvoiceWithStatus, InvoiceCategory, InvoiceStatus } from '@/types/invoice';
-import { getInvoicesWithStatus } from '@/store/invoiceStore';
+import { useInvoicesWithStatus } from '@/hooks/useInvoices';
+import { useAuth } from '@/hooks/useAuth';
 import { DashboardCards } from '@/components/DashboardCards';
 import { CategoryChart } from '@/components/CategoryChart';
 import { CardChart } from '@/components/CardChart';
@@ -9,7 +10,7 @@ import { InvoiceForm } from '@/components/InvoiceForm';
 import { PaymentDialog } from '@/components/PaymentDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Receipt } from 'lucide-react';
+import { Plus, Receipt, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 function getCurrentMonth() {
@@ -27,22 +28,18 @@ function formatMonthLabel(month: string) {
 }
 
 const Index = () => {
+  const { signOut } = useAuth();
+  const { data: allInvoices = [], isLoading } = useInvoicesWithStatus();
   const [referenceMonth, setReferenceMonth] = useState(getCurrentMonth());
   const [filterStatus, setFilterStatus] = useState<InvoiceStatus | 'all'>('all');
   const [filterCategory, setFilterCategory] = useState<InvoiceCategory | 'all'>('all');
   const [filterCard, setFilterCard] = useState('all');
-  const [refreshKey, setRefreshKey] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
   const [editInvoice, setEditInvoice] = useState<InvoiceWithStatus | null>(null);
   const [paymentInvoice, setPaymentInvoice] = useState<InvoiceWithStatus | null>(null);
 
-  const refresh = useCallback(() => setRefreshKey(k => k + 1), []);
-
-  // Re-fetch on refreshKey change
-  const allInvoices = getInvoicesWithStatus();
   const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
 
-  // Upcoming invoices (next 7 days, not paid)
   const now = new Date();
   const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
   const upcoming = allInvoices
@@ -55,9 +52,16 @@ const Index = () => {
     setFormOpen(true);
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Carregando faturas...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background" key={refreshKey}>
-      {/* Header */}
+    <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -74,18 +78,19 @@ const Index = () => {
             <Button onClick={() => { setEditInvoice(null); setFormOpen(true); }} size="sm">
               <Plus className="h-4 w-4 mr-1" /> Nova Fatura
             </Button>
+            <Button variant="ghost" size="icon" onClick={signOut} title="Sair">
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* Dashboard Cards */}
-        <DashboardCards referenceMonth={referenceMonth} />
+        <DashboardCards referenceMonth={referenceMonth} invoices={allInvoices} />
 
-        {/* Charts + Upcoming */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <CategoryChart referenceMonth={referenceMonth} />
-          <CardChart referenceMonth={referenceMonth} />
+          <CategoryChart referenceMonth={referenceMonth} invoices={allInvoices} />
+          <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
 
           <div className="glass-card p-6">
             <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">
@@ -96,10 +101,7 @@ const Index = () => {
             ) : (
               <div className="space-y-2">
                 {upcoming.map(inv => (
-                  <div
-                    key={inv.id}
-                    className="flex items-center justify-between bg-secondary/30 rounded-lg px-3 py-2 text-sm"
-                  >
+                  <div key={inv.id} className="flex items-center justify-between bg-secondary/30 rounded-lg px-3 py-2 text-sm">
                     <div className="min-w-0">
                       <p className="font-medium truncate">{inv.description}</p>
                       <p className="text-xs text-muted-foreground">
@@ -116,7 +118,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Filters + Invoice List */}
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="text-base font-semibold">Faturas</h2>
@@ -136,7 +137,6 @@ const Index = () => {
             invoices={monthInvoices}
             onPayment={setPaymentInvoice}
             onEdit={handleEdit}
-            onRefresh={refresh}
             filterStatus={filterStatus}
             filterCategory={filterCategory}
             filterCard={filterCard}
@@ -144,11 +144,9 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Dialogs */}
       <InvoiceForm
         open={formOpen}
         onOpenChange={(v) => { setFormOpen(v); if (!v) setEditInvoice(null); }}
-        onSaved={refresh}
         editInvoice={editInvoice}
         defaultMonth={referenceMonth}
       />
@@ -157,7 +155,6 @@ const Index = () => {
         open={!!paymentInvoice}
         onOpenChange={(v) => { if (!v) setPaymentInvoice(null); }}
         invoice={paymentInvoice}
-        onSaved={refresh}
       />
     </div>
   );
