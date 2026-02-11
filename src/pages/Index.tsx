@@ -28,6 +28,7 @@ const Index = () => {
   const [referenceMonth, setReferenceMonth] = useState(getCurrentMonth());
   const [filterStatus, setFilterStatus] = useState<InvoiceStatus | 'all'>('all');
   const [filterCategory, setFilterCategory] = useState<InvoiceCategory | 'all'>('all');
+  const [filterCard, setFilterCard] = useState('all');
   const [refreshKey, setRefreshKey] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
   const [editInvoice, setEditInvoice] = useState<InvoiceWithStatus | null>(null);
@@ -120,6 +121,8 @@ const Index = () => {
               onStatusChange={setFilterStatus}
               filterCategory={filterCategory}
               onCategoryChange={setFilterCategory}
+              filterCard={filterCard}
+              onCardChange={setFilterCard}
             />
           </div>
 
@@ -130,6 +133,7 @@ const Index = () => {
             onRefresh={refresh}
             filterStatus={filterStatus}
             filterCategory={filterCategory}
+            filterCard={filterCard}
           />
         </div>
       </main>
