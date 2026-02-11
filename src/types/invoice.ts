@@ -43,19 +43,27 @@ export interface Payment {
   notes?: string;
 }
 
-export const CARD_OPTIONS = [
-  'Nubank',
-  'Inter',
-  'Itaú',
-  'Bradesco',
-  'Santander',
-  'C6 Bank',
-  'BTG',
-  'XP',
-  'Caixa',
-  'Banco do Brasil',
-  'Outro',
-] as const;
+export const DEFAULT_CARDS = ['Caixa', 'Mercado Pago', 'Nubank'];
+
+const CARDS_KEY = 'user_cards';
+
+export function getCardOptions(): string[] {
+  try {
+    const data = localStorage.getItem(CARDS_KEY);
+    if (data) return JSON.parse(data);
+  } catch {}
+  return [...DEFAULT_CARDS];
+}
+
+export function addCardOption(card: string): string[] {
+  const cards = getCardOptions();
+  const trimmed = card.trim();
+  if (trimmed && !cards.includes(trimmed)) {
+    cards.push(trimmed);
+    localStorage.setItem(CARDS_KEY, JSON.stringify(cards));
+  }
+  return cards;
+}
 
 export interface Invoice {
   id: string;

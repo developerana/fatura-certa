@@ -1,4 +1,4 @@
-import { InvoiceCategory, InvoiceStatus, CATEGORY_LABELS, STATUS_LABELS, CARD_OPTIONS } from '@/types/invoice';
+import { InvoiceCategory, InvoiceStatus, CATEGORY_LABELS, STATUS_LABELS, getCardOptions } from '@/types/invoice';
 import {
   Select,
   SelectContent,
@@ -67,7 +67,7 @@ export function FiltersBar({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos Cartões</SelectItem>
-          {CARD_OPTIONS.map(c => (
+          {getCardOptions().map(c => (
             <SelectItem key={c} value={c}>{c}</SelectItem>
           ))}
         </SelectContent>
