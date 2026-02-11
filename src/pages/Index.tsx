@@ -8,9 +8,10 @@ import { CardChart } from '@/components/CardChart';
 import { InvoiceList } from '@/components/InvoiceList';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { PaymentDialog } from '@/components/PaymentDialog';
+import { PayAllDialog } from '@/components/PayAllDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Receipt, LogOut } from 'lucide-react';
+import { Plus, Receipt, LogOut, CheckCircle2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 function getCurrentMonth() {
@@ -37,6 +38,7 @@ const Index = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [editInvoice, setEditInvoice] = useState<InvoiceWithStatus | null>(null);
   const [paymentInvoice, setPaymentInvoice] = useState<InvoiceWithStatus | null>(null);
+  const [payAllOpen, setPayAllOpen] = useState(false);
 
   const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
 
@@ -75,6 +77,9 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <ThemeToggle />
+            <Button onClick={() => setPayAllOpen(true)} size="sm" variant="outline" className="text-xs sm:text-sm px-2 sm:px-3">
+              <CheckCircle2 className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Pagar Mês</span>
+            </Button>
             <Button onClick={() => { setEditInvoice(null); setFormOpen(true); }} size="sm" className="text-xs sm:text-sm px-2 sm:px-3">
               <Plus className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Nova Fatura</span>
             </Button>
@@ -155,6 +160,13 @@ const Index = () => {
         open={!!paymentInvoice}
         onOpenChange={(v) => { if (!v) setPaymentInvoice(null); }}
         invoice={paymentInvoice}
+      />
+
+      <PayAllDialog
+        open={payAllOpen}
+        onOpenChange={setPayAllOpen}
+        invoices={allInvoices}
+        referenceMonth={referenceMonth}
       />
     </div>
   );
