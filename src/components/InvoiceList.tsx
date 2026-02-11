@@ -38,8 +38,10 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterC
   const handleDelete = async () => {
     if (deleteId) {
       try {
-        await deleteInvoice.mutateAsync(deleteId);
-        toast.success('Fatura excluída');
+        const target = invoices.find(i => i.id === deleteId);
+        const group = target?.installments && target.installments > 1 ? target.installmentGroup : undefined;
+        await deleteInvoice.mutateAsync({ id: deleteId, installmentGroup: group });
+        toast.success(group ? 'Todas as parcelas excluídas' : 'Fatura excluída');
       } catch { toast.error('Erro ao excluir'); }
       setDeleteId(null);
     }
@@ -93,7 +95,15 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterC
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir fatura?</AlertDialogTitle>
-            <AlertDialogDescription>Esta ação não pode ser desfeita. Todos os pagamentos vinculados também serão removidos.</AlertDialogDescription>
+            <AlertDialogDescription>
+              {(() => {
+                const target = invoices.find(i => i.id === deleteId);
+                const isInstallment = target?.installments && target.installments > 1;
+                return isInstallment
+                  ? `Esta fatura é parcelada (${target.installments}x). Todas as parcelas e pagamentos vinculados serão excluídos. Esta ação não pode ser desfeita.`
+                  : 'Esta ação não pode ser desfeita. Todos os pagamentos vinculados também serão removidos.';
+              })()}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>

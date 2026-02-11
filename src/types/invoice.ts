@@ -123,6 +123,7 @@ export interface Invoice {
   notes?: string;
   installments?: number;
   installmentNumber?: number;
+  installmentGroup?: string;
   createdAt: string;
 }
 

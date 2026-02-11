@@ -72,6 +72,7 @@ export function useInvoicesWithStatus() {
           paymentMethod: invoice.payment_method || undefined,
           installments: invoice.installments || 1,
           installmentNumber: invoice.installment_number || 1,
+          installmentGroup: invoice.installment_group || undefined,
           createdAt: invoice.created_at,
           status: computeStatus(invoice, totalPaid),
           totalPaid,
@@ -170,9 +171,14 @@ export function useDeleteInvoice() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('invoices').delete().eq('id', id);
-      if (error) throw error;
+    mutationFn: async ({ id, installmentGroup }: { id: string; installmentGroup?: string | null }) => {
+      if (installmentGroup) {
+        const { error } = await supabase.from('invoices').delete().eq('installment_group', installmentGroup);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('invoices').delete().eq('id', id);
+        if (error) throw error;
+      }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
   });
