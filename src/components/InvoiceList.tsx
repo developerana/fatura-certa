@@ -97,9 +97,14 @@ export function InvoiceList({ invoices, onPayment, onEdit, onRefresh, filterStat
                       <CalendarDays className="h-3 w-3" />
                       {formatDate(inv.dueDate)}
                     </span>
-                    {inv.paymentMethod && (
-                      <span className="flex items-center gap-1">
+                    {inv.card && (
+                      <span className="flex items-center gap-1 text-primary">
                         <CreditCard className="h-3 w-3" />
+                        {inv.card}
+                      </span>
+                    )}
+                    {inv.paymentMethod && (
+                      <span className="text-muted-foreground">
                         {inv.paymentMethod}
                       </span>
                     )}
