@@ -34,6 +34,7 @@ export type InvoiceCategory =
   | 'farmacia'
   | 'delivery'
   | 'gas'
+  | 'setup'
   | 'outros';
 
 export const CATEGORY_LABELS: Record<InvoiceCategory, string> = {
@@ -70,6 +71,7 @@ export const CATEGORY_LABELS: Record<InvoiceCategory, string> = {
   viagem: 'Viagem',
   pet: 'Pet',
   doacao: 'Doação',
+  setup: 'Setup',
   outros: 'Outros',
 };
 
