@@ -73,10 +73,10 @@ export function CategoryChart({ referenceMonth }: CategoryChartProps) {
               <Tooltip
                 formatter={(value: number) => formatCurrency(value)}
                 contentStyle={{
-                  background: 'hsl(222, 47%, 9%)',
-                  border: '1px solid hsl(222, 30%, 18%)',
+                  background: 'hsl(0, 0%, 100%)',
+                  border: '1px solid hsl(214, 20%, 88%)',
                   borderRadius: '8px',
-                  color: 'hsl(210, 40%, 96%)',
+                  color: 'hsl(222, 47%, 11%)',
                   fontSize: '12px',
                 }}
               />
