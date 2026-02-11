@@ -22,8 +22,8 @@ function formatCurrency(value: number) {
 
 export function PayAllDialog({ open, onOpenChange, invoices, referenceMonth }: PayAllDialogProps) {
   const unpaid = invoices.filter(i => i.referenceMonth === referenceMonth && i.status !== 'paid');
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selected, setSelected] = useState<Set<string>>(() => new Set(unpaid.map(i => i.id)));
+  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [isEarly, setIsEarly] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [processing, setProcessing] = useState(false);
