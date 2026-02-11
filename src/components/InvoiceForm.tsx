@@ -52,7 +52,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(totalAmount);
+    const amount = parseFloat(totalAmount.replace(',', '.'));
     if (!description.trim() || isNaN(amount) || amount <= 0 || !dueDate || !referenceMonth) return;
 
     const data = {
@@ -104,7 +104,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
             </div>
             <div>
               <Label htmlFor="amount">Valor Total *</Label>
-              <Input id="amount" type="number" step="0.01" min="0.01" value={totalAmount} onChange={e => setTotalAmount(e.target.value)} placeholder="0,00" required />
+              <Input id="amount" type="text" inputMode="decimal" value={totalAmount} onChange={e => { const v = e.target.value.replace(/[^0-9.,]/g, ''); setTotalAmount(v); }} placeholder="0,00" required />
             </div>
           </div>
           <div className={`grid gap-3 ${!editInvoice ? 'grid-cols-2' : 'grid-cols-2'}`}>
@@ -134,7 +134,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
               {parseInt(installments) > 1 && totalAmount && (
                 <div className="flex items-end pb-2">
                   <p className="text-xs text-muted-foreground">
-                    {parseInt(installments)}x de {(parseFloat(totalAmount) / parseInt(installments)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    {parseInt(installments)}x de {(parseFloat(totalAmount.replace(',', '.')) / parseInt(installments)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </p>
                 </div>
               )}
