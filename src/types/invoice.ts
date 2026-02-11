@@ -11,19 +11,65 @@ export type InvoiceCategory =
   | 'saude' 
   | 'transporte' 
   | 'alimentacao' 
+  | 'supermercado'
+  | 'streaming'
+  | 'seguro'
+  | 'combustivel'
+  | 'estacionamento'
+  | 'academia'
+  | 'pet'
+  | 'vestuario'
+  | 'lazer'
+  | 'assinatura'
+  | 'condominio'
+  | 'iptu'
+  | 'ipva'
+  | 'impostos'
+  | 'manutencao'
+  | 'emprestimo'
+  | 'investimento'
+  | 'doacao'
+  | 'viagem'
+  | 'beleza'
+  | 'farmacia'
+  | 'delivery'
+  | 'gas'
   | 'outros';
 
 export const CATEGORY_LABELS: Record<InvoiceCategory, string> = {
   aluguel: 'Aluguel',
+  condominio: 'Condomínio',
   cartao: 'Cartão de Crédito',
   energia: 'Energia',
-  internet: 'Internet',
   agua: 'Água',
+  gas: 'Gás',
+  internet: 'Internet',
   telefone: 'Telefone',
+  streaming: 'Streaming',
+  assinatura: 'Assinatura',
+  supermercado: 'Supermercado',
+  delivery: 'Delivery',
+  alimentacao: 'Alimentação',
   educacao: 'Educação',
   saude: 'Saúde',
+  farmacia: 'Farmácia',
+  academia: 'Academia',
+  beleza: 'Beleza',
   transporte: 'Transporte',
-  alimentacao: 'Alimentação',
+  combustivel: 'Combustível',
+  estacionamento: 'Estacionamento',
+  seguro: 'Seguro',
+  iptu: 'IPTU',
+  ipva: 'IPVA',
+  impostos: 'Impostos',
+  emprestimo: 'Empréstimo',
+  investimento: 'Investimento',
+  manutencao: 'Manutenção',
+  vestuario: 'Vestuário',
+  lazer: 'Lazer',
+  viagem: 'Viagem',
+  pet: 'Pet',
+  doacao: 'Doação',
   outros: 'Outros',
 };
 
