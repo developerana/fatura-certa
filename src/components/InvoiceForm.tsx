@@ -107,7 +107,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
               <Input id="amount" type="number" step="0.01" min="0.01" value={totalAmount} onChange={e => setTotalAmount(e.target.value)} placeholder="0,00" required />
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className={`grid gap-3 ${!editInvoice ? 'grid-cols-2' : 'grid-cols-2'}`}>
             <div>
               <Label htmlFor="dueDate">Vencimento *</Label>
               <Input id="dueDate" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
@@ -116,7 +116,9 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
               <Label htmlFor="refMonth">Mês Ref. *</Label>
               <Input id="refMonth" type="month" value={referenceMonth} onChange={e => setReferenceMonth(e.target.value)} required />
             </div>
-            {!editInvoice && (
+          </div>
+          {!editInvoice && (
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="installments">Parcelas</Label>
                 <Input
@@ -128,14 +130,16 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
                   onChange={e => setInstallments(e.target.value)}
                   placeholder="1"
                 />
-                {parseInt(installments) > 1 && totalAmount && (
-                  <p className="text-[10px] text-muted-foreground mt-1">
+              </div>
+              {parseInt(installments) > 1 && totalAmount && (
+                <div className="flex items-end pb-2">
+                  <p className="text-xs text-muted-foreground">
                     {parseInt(installments)}x de {(parseFloat(totalAmount) / parseInt(installments)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </p>
-                )}
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Cartão</Label>
