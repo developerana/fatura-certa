@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { InvoiceWithStatus, STATUS_LABELS, CATEGORY_LABELS, InvoiceCategory, InvoiceStatus } from '@/types/invoice';
 import { useDeleteInvoice } from '@/hooks/useInvoices';
-import { CalendarDays, Trash2, CreditCard, MoreHorizontal } from 'lucide-react';
+import { CalendarDays, Trash2, CreditCard, Pencil, DollarSign } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
@@ -76,14 +76,36 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterC
                   </div>
                   <Progress value={progress} className="h-1.5" />
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {inv.status !== 'paid' && (<DropdownMenuItem onClick={() => onPayment(inv)}>Registrar Pagamento</DropdownMenuItem>)}
-                    <DropdownMenuItem onClick={() => onEdit(inv)}>Editar</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(inv.id)}>Excluir</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <TooltipProvider delayDuration={300}>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {inv.status !== 'paid' && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onPayment(inv)}>
+                            <DollarSign className="h-4 w-4 text-emerald-500" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Registrar Pagamento</TooltipContent>
+                      </Tooltip>
+                    )}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(inv)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Editar</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(inv.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Excluir</TooltipContent>
+                    </Tooltip>
+                  </div>
+                </TooltipProvider>
               </div>
             </div>
           );
