@@ -43,6 +43,20 @@ export interface Payment {
   notes?: string;
 }
 
+export const CARD_OPTIONS = [
+  'Nubank',
+  'Inter',
+  'Itaú',
+  'Bradesco',
+  'Santander',
+  'C6 Bank',
+  'BTG',
+  'XP',
+  'Caixa',
+  'Banco do Brasil',
+  'Outro',
+] as const;
+
 export interface Invoice {
   id: string;
   description: string;
@@ -50,6 +64,7 @@ export interface Invoice {
   totalAmount: number;
   dueDate: string; // ISO date
   referenceMonth: string; // YYYY-MM format
+  card?: string;
   paymentMethod?: string;
   notes?: string;
   createdAt: string;

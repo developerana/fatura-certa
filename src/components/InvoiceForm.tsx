@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Invoice, InvoiceCategory, CATEGORY_LABELS } from '@/types/invoice';
+import { Invoice, InvoiceCategory, CATEGORY_LABELS, CARD_OPTIONS } from '@/types/invoice';
 import { addInvoice, updateInvoice } from '@/store/invoiceStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +34,7 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
   const [totalAmount, setTotalAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [referenceMonth, setReferenceMonth] = useState(defaultMonth);
+  const [card, setCard] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -45,6 +46,7 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
         setTotalAmount(editInvoice.totalAmount.toString());
         setDueDate(editInvoice.dueDate);
         setReferenceMonth(editInvoice.referenceMonth);
+        setCard(editInvoice.card || '');
         setPaymentMethod(editInvoice.paymentMethod || '');
         setNotes(editInvoice.notes || '');
       } else {
@@ -53,6 +55,7 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
         setTotalAmount('');
         setDueDate('');
         setReferenceMonth(defaultMonth);
+        setCard('');
         setPaymentMethod('');
         setNotes('');
       }
@@ -71,6 +74,7 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
       totalAmount: amount,
       dueDate,
       referenceMonth,
+      card: card || undefined,
       paymentMethod: paymentMethod.trim() || undefined,
       notes: notes.trim() || undefined,
     };
@@ -156,15 +160,31 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="paymentMethod">Forma de Pagamento</Label>
-            <Input
-              id="paymentMethod"
-              value={paymentMethod}
-              onChange={e => setPaymentMethod(e.target.value)}
-              placeholder="Ex: PIX, Boleto, Débito"
-              maxLength={50}
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Cartão</Label>
+              <Select value={card || 'none'} onValueChange={(v) => setCard(v === 'none' ? '' : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o cartão" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {CARD_OPTIONS.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="paymentMethod">Forma de Pagamento</Label>
+              <Input
+                id="paymentMethod"
+                value={paymentMethod}
+                onChange={e => setPaymentMethod(e.target.value)}
+                placeholder="Ex: PIX, Boleto, Débito"
+                maxLength={50}
+              />
+            </div>
           </div>
 
           <div>
