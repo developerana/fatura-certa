@@ -29,7 +29,7 @@ export function PaymentDialog({ open, onOpenChange, invoice }: PaymentDialogProp
   const maxAmount = invoice.remainingBalance;
 
   const handleSubmit = async () => {
-    const parsedAmount = parseFloat(amount);
+    const parsedAmount = parseFloat(amount.replace(',', '.'));
     if (isNaN(parsedAmount) || parsedAmount <= 0) { toast.error('Informe um valor válido'); return; }
     if (parsedAmount > maxAmount) { toast.error(`Valor não pode exceder ${formatCurrency(maxAmount)}`); return; }
     if (!confirming) { setConfirming(true); return; }
@@ -73,7 +73,7 @@ export function PaymentDialog({ open, onOpenChange, invoice }: PaymentDialogProp
               <Label htmlFor="payAmount">Valor do Pagamento *</Label>
               <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => setAmount(maxAmount.toFixed(2))}>Pagar total</Button>
             </div>
-            <Input id="payAmount" type="number" step="0.01" min="0.01" max={maxAmount} value={amount} onChange={e => { setAmount(e.target.value); setConfirming(false); }} placeholder="0,00" />
+            <Input id="payAmount" type="text" inputMode="decimal" value={amount} onChange={e => { const v = e.target.value.replace(/[^0-9.,]/g, ''); setAmount(v); setConfirming(false); }} placeholder="0,00" />
           </div>
           <div><Label htmlFor="payDate">Data do Pagamento *</Label><Input id="payDate" type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
           <div className="flex items-center space-x-2">
