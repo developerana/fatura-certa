@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Invoice, InvoiceCategory, CATEGORY_LABELS, CARD_OPTIONS } from '@/types/invoice';
+import { Invoice, InvoiceCategory, CATEGORY_LABELS, getCardOptions, addCardOption } from '@/types/invoice';
 import { addInvoice, updateInvoice } from '@/store/invoiceStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,8 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
   const [card, setCard] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [notes, setNotes] = useState('');
+  const [showCustomCard, setShowCustomCard] = useState(false);
+  const [customCard, setCustomCard] = useState('');
 
   useEffect(() => {
     if (open) {
@@ -163,17 +165,39 @@ export function InvoiceForm({ open, onOpenChange, onSaved, editInvoice, defaultM
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Cartão</Label>
-              <Select value={card || 'none'} onValueChange={(v) => setCard(v === 'none' ? '' : v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o cartão" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum</SelectItem>
-                  {CARD_OPTIONS.map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select value={card || 'none'} onValueChange={(v) => { if (v === 'custom') { setShowCustomCard(true); } else { setCard(v === 'none' ? '' : v); } }}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Selecione o cartão" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhum</SelectItem>
+                    {getCardOptions().map(c => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                    <SelectItem value="custom">+ Adicionar cartão</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {showCustomCard && (
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    value={customCard}
+                    onChange={e => setCustomCard(e.target.value)}
+                    placeholder="Nome do cartão"
+                    maxLength={30}
+                    className="flex-1"
+                  />
+                  <Button type="button" size="sm" onClick={() => {
+                    if (customCard.trim()) {
+                      addCardOption(customCard.trim());
+                      setCard(customCard.trim());
+                      setCustomCard('');
+                      setShowCustomCard(false);
+                    }
+                  }}>OK</Button>
+                </div>
+              )}
             </div>
             <div>
               <Label htmlFor="paymentMethod">Forma de Pagamento</Label>
