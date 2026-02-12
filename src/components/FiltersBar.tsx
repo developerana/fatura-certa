@@ -34,6 +34,7 @@ interface FiltersBarProps {
   onCategoryChange: (category: InvoiceCategory | 'all') => void;
   filterCard: string;
   onCardChange: (card: string) => void;
+  availableCategories?: InvoiceCategory[];
 }
 
 export function FiltersBar({
@@ -45,7 +46,11 @@ export function FiltersBar({
   onCategoryChange,
   filterCard,
   onCardChange,
+  availableCategories,
 }: FiltersBarProps) {
+  const categoriesToShow = availableCategories
+    ? Object.entries(CATEGORY_LABELS).filter(([key]) => availableCategories.includes(key as InvoiceCategory))
+    : Object.entries(CATEGORY_LABELS);
   return (
     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
       <div className="flex items-center gap-1 w-full sm:w-auto justify-center sm:justify-start">
@@ -77,7 +82,7 @@ export function FiltersBar({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas Categorias</SelectItem>
-            {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+            {categoriesToShow.map(([key, label]) => (
               <SelectItem key={key} value={key}>{label}</SelectItem>
             ))}
           </SelectContent>
