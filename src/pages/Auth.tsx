@@ -7,7 +7,6 @@ import { Receipt } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,19 +16,9 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success('Login realizado com sucesso!');
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-        toast.success('Cadastro realizado! Verifique seu email para confirmar.');
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast.success('Login realizado com sucesso!');
     } catch (err: any) {
       toast.error(err.message || 'Erro ao processar');
     } finally {
@@ -45,9 +34,7 @@ export default function Auth() {
             <Receipt className="h-6 w-6 text-primary" />
           </div>
           <h1 className="text-xl font-bold">Controle de Faturas</h1>
-          <p className="text-sm text-muted-foreground">
-            {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
-          </p>
+          <p className="text-sm text-muted-foreground">Entre na sua conta</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,20 +62,9 @@ export default function Auth() {
             />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Aguarde...' : isLogin ? 'Entrar' : 'Cadastrar'}
+            {loading ? 'Aguarde...' : 'Entrar'}
           </Button>
         </form>
-
-        <p className="text-center text-sm text-muted-foreground">
-          {isLogin ? 'Não tem conta?' : 'Já tem conta?'}{' '}
-          <button
-            type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-primary hover:underline font-medium"
-          >
-            {isLogin ? 'Cadastre-se' : 'Faça login'}
-          </button>
-        </p>
       </div>
     </div>
   );
