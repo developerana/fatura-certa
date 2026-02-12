@@ -16,7 +16,8 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 
 function getCurrentMonth() {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}`;
 }
 
 function formatMonthLabel(month: string) {
