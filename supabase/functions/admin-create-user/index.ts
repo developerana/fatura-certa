@@ -119,6 +119,33 @@ Deno.serve(async (req) => {
       })
     }
 
+    if (method === 'POST' && action === 'reset-password') {
+      const { user_id, new_password } = await req.json()
+      if (!user_id || !new_password) {
+        return new Response(JSON.stringify({ error: 'user_id e new_password são obrigatórios' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const { error: updateError } = await adminClient.auth.admin.updateUserById(user_id, {
+        password: new_password,
+        user_metadata: { must_change_password: true },
+      })
+
+      if (updateError) {
+        return new Response(JSON.stringify({ error: updateError.message }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     if (method === 'POST' && action === 'delete') {
       const { user_id } = await req.json()
       if (!user_id) {
