@@ -96,11 +96,21 @@ export default function Admin() {
 
       if (!response.ok) throw new Error(data.error);
 
+      // Optimistic: add to list immediately
+      const newUser: AdminUser = {
+        id: data.user?.id || crypto.randomUUID(),
+        email,
+        display_name: displayName || email,
+        created_at: new Date().toISOString(),
+        roles: ['user'],
+      };
+      setUsers(prev => [...prev, newUser]);
       toast.success('Usuário criado com sucesso!');
       setEmail('');
       setPassword('');
       setDisplayName('');
       setDialogOpen(false);
+      // Background sync
       fetchUsers();
     } catch (err: any) {
       toast.error(err.message || 'Erro ao criar usuário');
@@ -131,9 +141,11 @@ export default function Admin() {
 
       if (!response.ok) throw new Error(data.error);
 
+      // Optimistic: remove from list immediately
+      const deletedId = deleteUser.id;
+      setUsers(prev => prev.filter(u => u.id !== deletedId));
       toast.success('Usuário removido com sucesso!');
       setDeleteUser(null);
-      fetchUsers();
     } catch (err: any) {
       toast.error(err.message || 'Erro ao remover usuário');
     } finally {
