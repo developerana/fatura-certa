@@ -6,7 +6,20 @@ interface CardChartProps {
   invoices: InvoiceWithStatus[];
 }
 
-const COLORS = ['hsl(172, 66%, 50%)', 'hsl(262, 60%, 55%)', 'hsl(45, 93%, 47%)', 'hsl(340, 65%, 55%)', 'hsl(200, 70%, 50%)', 'hsl(30, 80%, 55%)'];
+const CARD_COLORS: Record<string, string> = {
+  'nubank': 'hsl(270, 70%, 45%)',
+  'mercado pago': 'hsl(50, 90%, 50%)',
+  'caixa': 'hsl(200, 75%, 60%)',
+};
+const FALLBACK_COLORS = ['hsl(340, 65%, 55%)', 'hsl(172, 66%, 50%)', 'hsl(30, 80%, 55%)'];
+
+function getCardColor(cardName: string, index: number) {
+  const key = cardName.toLowerCase().trim();
+  for (const [match, color] of Object.entries(CARD_COLORS)) {
+    if (key.includes(match)) return color;
+  }
+  return FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+}
 
 function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -38,7 +51,7 @@ export function CardChart({ referenceMonth, invoices }: CardChartProps) {
             <div
               key={item.card}
               className="h-full transition-all duration-500 ease-out relative group"
-              style={{ width: `${pct}%`, background: COLORS[index % COLORS.length] }}
+              style={{ width: `${pct}%`, background: getCardColor(item.card, index) }}
               title={`${item.card}: ${formatCurrency(item.value)}`}
             >
               {pct > 15 && (
@@ -58,7 +71,7 @@ export function CardChart({ referenceMonth, invoices }: CardChartProps) {
           return (
             <div key={item.card} className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="w-3 h-3 rounded flex-shrink-0" style={{ background: COLORS[index % COLORS.length] }} />
+                <div className="w-3 h-3 rounded flex-shrink-0" style={{ background: getCardColor(item.card, index) }} />
                 <span className="text-foreground font-medium truncate">{item.card}</span>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
