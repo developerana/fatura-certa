@@ -141,6 +141,11 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
                     onChange={e => { setInstallments(e.target.value); setCurrentInstallment('1'); }}
                     placeholder="1"
                   />
+                  {installmentCount > 1 && amountCents > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {installmentCount}x de {(totalReal / installmentCount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </p>
+                  )}
                 </div>
                 {installmentCount > 1 && (
                   <div>
