@@ -9,6 +9,16 @@ import { ArrowLeft, Plus, Trash2, Users, Shield, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -35,6 +45,8 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [creating, setCreating] = useState(false);
+  const [deleteUser, setDeleteUser] = useState<AdminUser | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchUsers = async () => {
     setLoadingUsers(true);
@@ -94,8 +106,9 @@ export default function Admin() {
     }
   };
 
-  const handleDelete = async (userId: string, userEmail: string) => {
-    if (!confirm(`Tem certeza que deseja remover ${userEmail}?`)) return;
+  const confirmDelete = async () => {
+    if (!deleteUser) return;
+    setDeleting(true);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -109,16 +122,19 @@ export default function Admin() {
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({ user_id: deleteUser.id }),
       });
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.error);
 
       toast.success('Usuário removido com sucesso!');
+      setDeleteUser(null);
       fetchUsers();
     } catch (err: any) {
       toast.error(err.message || 'Erro ao remover usuário');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -235,7 +251,7 @@ export default function Admin() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => handleDelete(u.id, u.email)}
+                      onClick={() => setDeleteUser(u)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -246,6 +262,27 @@ export default function Admin() {
           </div>
         )}
       </main>
+
+      <AlertDialog open={!!deleteUser} onOpenChange={(open) => { if (!open) setDeleteUser(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Usuário</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja remover <strong>{deleteUser?.display_name}</strong> ({deleteUser?.email})? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Removendo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
