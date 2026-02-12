@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { InvoiceWithStatus, InvoiceCategory, InvoiceStatus } from '@/types/invoice';
 import { useInvoicesWithStatus } from '@/hooks/useInvoices';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { DashboardCards } from '@/components/DashboardCards';
 import { CategoryChart } from '@/components/CategoryChart';
 import { CardChart } from '@/components/CardChart';
@@ -11,7 +13,7 @@ import { PaymentDialog } from '@/components/PaymentDialog';
 import { PayAllDialog } from '@/components/PayAllDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Receipt, LogOut, CheckCircle2 } from 'lucide-react';
+import { Plus, Receipt, LogOut, CheckCircle2, Users } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 function getCurrentMonth() {
@@ -31,6 +33,8 @@ function formatMonthLabel(month: string) {
 
 const Index = () => {
   const { signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
+  const navigate = useNavigate();
   const { data: allInvoices = [], isLoading } = useInvoicesWithStatus();
   const [referenceMonth, setReferenceMonth] = useState(getCurrentMonth());
   const [filterStatus, setFilterStatus] = useState<InvoiceStatus | 'all'>('all');
@@ -79,6 +83,11 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <ThemeToggle />
+            {isAdmin && (
+              <Button onClick={() => navigate('/admin')} size="sm" variant="outline" className="text-xs sm:text-sm px-2 sm:px-3">
+                <Users className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Usuários</span>
+              </Button>
+            )}
             <Button onClick={() => setPayAllOpen(true)} size="sm" variant="outline" className="text-xs sm:text-sm px-2 sm:px-3">
               <CheckCircle2 className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Pagar Mês</span>
             </Button>
