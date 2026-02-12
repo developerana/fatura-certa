@@ -117,27 +117,32 @@ export function useAddInvoice() {
       card?: string;
       paymentMethod?: string;
       installments?: number;
+      currentInstallment?: number;
     }) => {
       if (!user) throw new Error('Not authenticated');
       const installments = data.installments && data.installments > 1 ? data.installments : 1;
+      const startFrom = data.currentInstallment && data.currentInstallment > 1 ? data.currentInstallment : 1;
       const installmentGroup = installments > 1 ? crypto.randomUUID() : null;
       const perInstallment = Math.round((data.totalAmount / installments) * 100) / 100;
 
-      const rows = Array.from({ length: installments }, (_, i) => ({
-        user_id: user.id,
-        description: installments > 1 ? `${data.description} (${i + 1}/${installments})` : data.description,
-        category: data.category,
-        total_amount: i === installments - 1
-          ? Math.round((data.totalAmount - perInstallment * (installments - 1)) * 100) / 100
-          : perInstallment,
-        due_date: shiftDate(data.dueDate, i),
-        reference_month: shiftMonth(data.referenceMonth, i),
-        card: data.card || null,
-        payment_method: data.paymentMethod || null,
-        installments,
-        installment_number: i + 1,
-        installment_group: installmentGroup,
-      }));
+      const rows = Array.from({ length: installments - startFrom + 1 }, (_, idx) => {
+        const i = startFrom - 1 + idx; // absolute index (0-based)
+        return {
+          user_id: user.id,
+          description: installments > 1 ? `${data.description} (${i + 1}/${installments})` : data.description,
+          category: data.category,
+          total_amount: i === installments - 1
+            ? Math.round((data.totalAmount - perInstallment * (installments - 1)) * 100) / 100
+            : perInstallment,
+          due_date: shiftDate(data.dueDate, idx),
+          reference_month: shiftMonth(data.referenceMonth, idx),
+          card: data.card || null,
+          payment_method: data.paymentMethod || null,
+          installments,
+          installment_number: i + 1,
+          installment_group: installmentGroup,
+        };
+      });
 
       const { error } = await supabase.from('invoices').insert(rows);
       if (error) throw error;

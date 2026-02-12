@@ -27,6 +27,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
   const [paymentMethod, setPaymentMethod] = useState('');
   const [notes, setNotes] = useState('');
   const [installments, setInstallments] = useState('1');
+  const [currentInstallment, setCurrentInstallment] = useState('1');
   const [showCustomCard, setShowCustomCard] = useState(false);
   const [customCard, setCustomCard] = useState('');
   const [showCustomPayment, setShowCustomPayment] = useState(false);
@@ -48,7 +49,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
         setNotes(editInvoice.notes || '');
       } else {
         setDescription(''); setCategory('outros'); setAmountCents(0); setDueDate('');
-        setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setNotes(''); setInstallments('1');
+        setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setNotes(''); setInstallments('1'); setCurrentInstallment('1');
       }
     }
   }, [open, editInvoice, defaultMonth]);
@@ -67,6 +68,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
       card: card || undefined,
       paymentMethod: paymentMethod.trim() || undefined,
       installments: parseInt(installments) || 1,
+      currentInstallment: parseInt(currentInstallment) || 1,
     };
 
     try {
@@ -76,7 +78,8 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
       } else {
         await addInvoice.mutateAsync(data);
         const n = data.installments;
-        toast.success(n > 1 ? `${n} parcelas cadastradas!` : 'Fatura cadastrada!');
+        const remaining = n - data.currentInstallment + 1;
+        toast.success(n > 1 ? `${remaining} parcelas cadastradas (${data.currentInstallment}ª a ${n}ª)!` : 'Fatura cadastrada!');
       }
       onOpenChange(false);
     } catch (err: any) {
@@ -85,6 +88,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
   };
 
   const installmentCount = parseInt(installments) || 1;
+  const currentInstallmentNum = Math.min(Math.max(parseInt(currentInstallment) || 1, 1), installmentCount);
   const totalReal = centsToReal(amountCents);
 
   return (
@@ -124,27 +128,48 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
             </div>
           </div>
           {!editInvoice && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="installments">Parcelas</Label>
-                <Input
-                  id="installments"
-                  type="number"
-                  min="1"
-                  max="48"
-                  value={installments}
-                  onChange={e => setInstallments(e.target.value)}
-                  placeholder="1"
-                />
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="installments">Total de Parcelas</Label>
+                  <Input
+                    id="installments"
+                    type="number"
+                    min="1"
+                    max="48"
+                    value={installments}
+                    onChange={e => { setInstallments(e.target.value); setCurrentInstallment('1'); }}
+                    placeholder="1"
+                  />
+                </div>
+                {installmentCount > 1 && (
+                  <div>
+                    <Label htmlFor="currentInstallment">Parcela Atual</Label>
+                    <Input
+                      id="currentInstallment"
+                      type="number"
+                      min="1"
+                      max={installmentCount}
+                      value={currentInstallment}
+                      onChange={e => setCurrentInstallment(e.target.value)}
+                      placeholder="1"
+                    />
+                  </div>
+                )}
               </div>
               {installmentCount > 1 && amountCents > 0 && (
-                <div className="flex items-end pb-2">
+                <div>
                   <p className="text-xs text-muted-foreground">
                     {installmentCount}x de {(totalReal / installmentCount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    {currentInstallmentNum > 1 && (
+                      <span className="ml-1">
+                        — Serão criadas {installmentCount - currentInstallmentNum + 1} parcelas (da {currentInstallmentNum}ª à {installmentCount}ª)
+                      </span>
+                    )}
                   </p>
                 </div>
               )}
-            </div>
+            </>
           )}
           <div className="grid grid-cols-2 gap-3">
             <div>
