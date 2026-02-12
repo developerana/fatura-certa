@@ -27,6 +27,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
   const [paymentMethod, setPaymentMethod] = useState('');
   const [notes, setNotes] = useState('');
   const [installments, setInstallments] = useState('1');
+  const [currentInstallment, setCurrentInstallment] = useState('1');
   const [showCustomCard, setShowCustomCard] = useState(false);
   const [customCard, setCustomCard] = useState('');
   const [showCustomPayment, setShowCustomPayment] = useState(false);
@@ -47,8 +48,8 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
         setPaymentMethod(editInvoice.paymentMethod || '');
         setNotes(editInvoice.notes || '');
       } else {
-        setDescription('');setCategory('outros');setAmountCents(0);setDueDate('');
-        setReferenceMonth(defaultMonth);setCard('');setPaymentMethod('');setNotes('');setInstallments('1');
+        setDescription(''); setCategory('outros'); setAmountCents(0); setDueDate('');
+        setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setNotes(''); setInstallments('1'); setCurrentInstallment('1');
       }
     }
   }, [open, editInvoice, defaultMonth]);
@@ -66,7 +67,8 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
       referenceMonth,
       card: card || undefined,
       paymentMethod: paymentMethod.trim() || undefined,
-      installments: parseInt(installments) || 1
+      installments: parseInt(installments) || 1,
+      currentInstallment: parseInt(currentInstallment) || 1,
     };
 
     try {
@@ -76,7 +78,8 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
       } else {
         await addInvoice.mutateAsync(data);
         const n = data.installments;
-        toast.success(n > 1 ? `${n} parcelas cadastradas!` : 'Fatura cadastrada!');
+        const remaining = n - data.currentInstallment + 1;
+        toast.success(n > 1 ? `${remaining} parcelas cadastradas (${data.currentInstallment}ª a ${n}ª)!` : 'Fatura cadastrada!');
       }
       onOpenChange(false);
     } catch (err: any) {
@@ -85,6 +88,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
   };
 
   const installmentCount = parseInt(installments) || 1;
+  const currentInstallmentNum = Math.min(Math.max(parseInt(currentInstallment) || 1, 1), installmentCount);
   const totalReal = centsToReal(amountCents);
 
   return (
@@ -96,7 +100,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="description">Descrição *</Label>
-            <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ex: Conta de luz" maxLength={100} required />
+            <Input id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Ex: Conta de luz" maxLength={100} required />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -104,7 +108,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
               <Select value={category} onValueChange={(v) => setCategory(v as InvoiceCategory)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => <SelectItem key={key} value={key}>{label}</SelectItem>)}
+                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (<SelectItem key={key} value={key}>{label}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
@@ -116,75 +120,96 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="dueDate">Vencimento *</Label>
-              <Input id="dueDate" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+              <Input id="dueDate" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
             </div>
             <div>
               <Label htmlFor="refMonth">Mês Ref. *</Label>
-              <Input id="refMonth" type="month" value={referenceMonth} onChange={(e) => setReferenceMonth(e.target.value)} required />
+              <Input id="refMonth" type="month" value={referenceMonth} onChange={e => setReferenceMonth(e.target.value)} required />
             </div>
           </div>
-          {!editInvoice &&
-          <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="installments">Parcelas</Label>
-                <Input
-                id="installments"
-                type="number"
-                min="1"
-                max="48"
-                value={installments}
-                onChange={(e) => setInstallments(e.target.value)}
-                placeholder="1" />
-
+          {!editInvoice && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="installments">Total de Parcelas</Label>
+                  <Input
+                    id="installments"
+                    type="number"
+                    min="1"
+                    max="48"
+                    value={installments}
+                    onChange={e => { setInstallments(e.target.value); setCurrentInstallment('1'); }}
+                    placeholder="1"
+                  />
+                </div>
+                {installmentCount > 1 && (
+                  <div>
+                    <Label htmlFor="currentInstallment">Parcela Atual</Label>
+                    <Input
+                      id="currentInstallment"
+                      type="number"
+                      min="1"
+                      max={installmentCount}
+                      value={currentInstallment}
+                      onChange={e => setCurrentInstallment(e.target.value)}
+                      placeholder="1"
+                    />
+                  </div>
+                )}
               </div>
-              {installmentCount > 1 && amountCents > 0 &&
-            <div className="flex items-end pb-2">
+              {installmentCount > 1 && amountCents > 0 && (
+                <div>
                   <p className="text-xs text-muted-foreground">
                     {installmentCount}x de {(totalReal / installmentCount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    {currentInstallmentNum > 1 && (
+                      <span className="ml-1">
+                        — Serão criadas {installmentCount - currentInstallmentNum + 1} parcelas (da {currentInstallmentNum}ª à {installmentCount}ª)
+                      </span>
+                    )}
                   </p>
                 </div>
-            }
-            </div>
-          }
+              )}
+            </>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Cartão</Label>
-              <Select value={card || 'none'} onValueChange={(v) => {if (v === 'custom') {setShowCustomCard(true);} else {setCard(v === 'none' ? '' : v);}}}>
+              <Select value={card || 'none'} onValueChange={(v) => { if (v === 'custom') { setShowCustomCard(true); } else { setCard(v === 'none' ? '' : v); } }}>
                 <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione o cartão" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Nenhum</SelectItem>
-                  {getCardOptions().map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {getCardOptions().map(c => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
                   <SelectItem value="custom">+ Adicionar cartão</SelectItem>
                 </SelectContent>
               </Select>
-              {showCustomCard &&
-              <div className="flex gap-2 mt-2">
-                  <Input value={customCard} onChange={(e) => setCustomCard(e.target.value)} placeholder="Nome do cartão" maxLength={30} className="flex-1" />
-                  <Button type="button" size="sm" onClick={() => {if (customCard.trim()) {addCardOption(customCard.trim());setCard(customCard.trim());setCustomCard('');setShowCustomCard(false);}}}>OK</Button>
+              {showCustomCard && (
+                <div className="flex gap-2 mt-2">
+                  <Input value={customCard} onChange={e => setCustomCard(e.target.value)} placeholder="Nome do cartão" maxLength={30} className="flex-1" />
+                  <Button type="button" size="sm" onClick={() => { if (customCard.trim()) { addCardOption(customCard.trim()); setCard(customCard.trim()); setCustomCard(''); setShowCustomCard(false); } }}>OK</Button>
                 </div>
-              }
+              )}
             </div>
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            <div>
+              <Label>Forma de Pagamento</Label>
+              <Select value={paymentMethod || 'none'} onValueChange={(v) => { if (v === 'custom_payment') { setShowCustomPayment(true); } else { setPaymentMethod(v === 'none' ? '' : v); } }}>
+                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  {getPaymentMethodOptions().map(m => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
+                  <SelectItem value="custom_payment">+ Adicionar forma</SelectItem>
+                </SelectContent>
+              </Select>
+              {showCustomPayment && (
+                <div className="flex gap-2 mt-2">
+                  <Input value={customPayment} onChange={e => setCustomPayment(e.target.value)} placeholder="Nome da forma" maxLength={30} className="flex-1" />
+                  <Button type="button" size="sm" onClick={() => { if (customPayment.trim()) { addPaymentMethodOption(customPayment.trim()); setPaymentMethod(customPayment.trim()); setCustomPayment(''); setShowCustomPayment(false); } }}>OK</Button>
+                </div>
+              )}
+            </div>
           </div>
           <div>
             <Label htmlFor="notes">Observações</Label>
-            <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas adicionais..." maxLength={500} rows={2} />
+            <Textarea id="notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Notas adicionais..." maxLength={500} rows={2} />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
@@ -194,6 +219,6 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>);
-
+    </Dialog>
+  );
 }
