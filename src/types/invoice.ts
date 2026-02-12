@@ -92,8 +92,10 @@ export interface Payment {
 }
 
 export const DEFAULT_CARDS = ['Caixa', 'Mercado Pago', 'Nubank'];
+export const DEFAULT_PAYMENT_METHODS = ['PIX', 'Boleto', 'Débito', 'Crédito', 'Dinheiro', 'Transferência'];
 
 const CARDS_KEY = 'user_cards';
+const PAYMENT_METHODS_KEY = 'user_payment_methods';
 
 export function getCardOptions(): string[] {
   try {
@@ -111,6 +113,24 @@ export function addCardOption(card: string): string[] {
     localStorage.setItem(CARDS_KEY, JSON.stringify(cards));
   }
   return cards;
+}
+
+export function getPaymentMethodOptions(): string[] {
+  try {
+    const data = localStorage.getItem(PAYMENT_METHODS_KEY);
+    if (data) return JSON.parse(data);
+  } catch {}
+  return [...DEFAULT_PAYMENT_METHODS];
+}
+
+export function addPaymentMethodOption(method: string): string[] {
+  const methods = getPaymentMethodOptions();
+  const trimmed = method.trim();
+  if (trimmed && !methods.includes(trimmed)) {
+    methods.push(trimmed);
+    localStorage.setItem(PAYMENT_METHODS_KEY, JSON.stringify(methods));
+  }
+  return methods;
 }
 
 export interface Invoice {
