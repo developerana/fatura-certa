@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import ChangePassword from "./pages/ChangePassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -15,6 +16,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
   if (!user) return <Navigate to="/auth" replace />;
+  if (user.user_metadata?.must_change_password) return <Navigate to="/change-password" replace />;
   return <>{children}</>;
 }
 
@@ -35,6 +37,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
