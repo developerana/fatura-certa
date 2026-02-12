@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
       })
     }
 
-    if (method === 'DELETE' && action === 'delete') {
+    if (method === 'POST' && action === 'delete') {
       const { user_id } = await req.json()
       if (!user_id) {
         return new Response(JSON.stringify({ error: 'user_id é obrigatório' }), {

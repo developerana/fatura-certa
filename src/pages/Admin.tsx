@@ -103,7 +103,7 @@ export default function Admin() {
 
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-create-user?action=delete`;
       const response = await fetch(url, {
-        method: 'DELETE',
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
