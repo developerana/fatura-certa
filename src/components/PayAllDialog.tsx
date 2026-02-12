@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { InvoiceWithStatus } from '@/types/invoice';
-import { useAddPayment } from '@/hooks/useInvoices';
+import { useAddPaymentsBatch } from '@/hooks/useInvoices';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,8 +25,7 @@ export function PayAllDialog({ open, onOpenChange, invoices, referenceMonth }: P
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [isEarly, setIsEarly] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [processing, setProcessing] = useState(false);
-  const addPayment = useAddPayment();
+  const addPaymentsBatch = useAddPaymentsBatch();
 
   const totalToPay = unpaid.reduce((sum, i) => sum + i.remainingBalance, 0);
 
@@ -43,22 +42,21 @@ export function PayAllDialog({ open, onOpenChange, invoices, referenceMonth }: P
     if (unpaid.length === 0) return;
     if (!confirming) { setConfirming(true); return; }
 
-    setProcessing(true);
     try {
-      for (const inv of unpaid) {
-        await addPayment.mutateAsync({
+      // Single batch insert instead of sequential mutations
+      await addPaymentsBatch.mutateAsync(
+        unpaid.map(inv => ({
           invoiceId: inv.id,
           amount: inv.remainingBalance,
           date,
           isEarly,
-        });
-      }
+        }))
+      );
       toast.success(`${unpaid.length} fatura(s) pagas com sucesso!`);
       onOpenChange(false);
     } catch {
       toast.error('Erro ao registrar pagamentos');
     } finally {
-      setProcessing(false);
       setConfirming(false);
     }
   };
@@ -131,8 +129,8 @@ export function PayAllDialog({ open, onOpenChange, invoices, referenceMonth }: P
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
           {unpaid.length > 0 && (
-            <Button type="button" onClick={handleSubmit} disabled={processing}>
-              {processing ? 'Processando...' : confirming ? `Confirmar ${formatCurrency(totalToPay)}` : `Pagar Tudo`}
+            <Button type="button" onClick={handleSubmit} disabled={addPaymentsBatch.isPending}>
+              {addPaymentsBatch.isPending ? 'Processando...' : confirming ? `Confirmar ${formatCurrency(totalToPay)}` : `Pagar Tudo`}
             </Button>
           )}
         </DialogFooter>

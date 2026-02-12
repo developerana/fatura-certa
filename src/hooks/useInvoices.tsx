@@ -38,6 +38,38 @@ function computeStatus(invoice: DbInvoice, totalPaid: number): InvoiceStatus {
   return 'pending';
 }
 
+function mapInvoices(invoices: DbInvoice[], payments: DbPayment[]): InvoiceWithStatus[] {
+  return invoices.map(invoice => {
+    const invoicePayments = payments.filter(p => p.invoice_id === invoice.id);
+    const totalPaid = invoicePayments.reduce((sum, p) => sum + Number(p.amount), 0);
+
+    return {
+      id: invoice.id,
+      description: invoice.description,
+      category: invoice.category as InvoiceCategory,
+      totalAmount: Number(invoice.total_amount),
+      dueDate: invoice.due_date,
+      referenceMonth: invoice.reference_month,
+      card: invoice.card || undefined,
+      paymentMethod: invoice.payment_method || undefined,
+      installments: invoice.installments || 1,
+      installmentNumber: invoice.installment_number || 1,
+      installmentGroup: invoice.installment_group || undefined,
+      createdAt: invoice.created_at,
+      status: computeStatus(invoice, totalPaid),
+      totalPaid,
+      remainingBalance: Number(invoice.total_amount) - totalPaid,
+      payments: invoicePayments.map(p => ({
+        id: p.id,
+        invoiceId: p.invoice_id,
+        amount: Number(p.amount),
+        date: p.date,
+        isEarly: p.is_early,
+      })),
+    };
+  });
+}
+
 export function useInvoicesWithStatus() {
   const { user } = useAuth();
 
@@ -54,40 +86,15 @@ export function useInvoicesWithStatus() {
       if (ie) throw ie;
       if (pe) throw pe;
 
-      const inv = (invoices || []) as DbInvoice[];
-      const pay = (payments || []) as DbPayment[];
-
-      return inv.map(invoice => {
-        const invoicePayments = pay.filter(p => p.invoice_id === invoice.id);
-        const totalPaid = invoicePayments.reduce((sum, p) => sum + Number(p.amount), 0);
-
-        return {
-          id: invoice.id,
-          description: invoice.description,
-          category: invoice.category as InvoiceCategory,
-          totalAmount: Number(invoice.total_amount),
-          dueDate: invoice.due_date,
-          referenceMonth: invoice.reference_month,
-          card: invoice.card || undefined,
-          paymentMethod: invoice.payment_method || undefined,
-          installments: invoice.installments || 1,
-          installmentNumber: invoice.installment_number || 1,
-          installmentGroup: invoice.installment_group || undefined,
-          createdAt: invoice.created_at,
-          status: computeStatus(invoice, totalPaid),
-          totalPaid,
-          remainingBalance: Number(invoice.total_amount) - totalPaid,
-          payments: invoicePayments.map(p => ({
-            id: p.id,
-            invoiceId: p.invoice_id,
-            amount: Number(p.amount),
-            date: p.date,
-            isEarly: p.is_early,
-          })),
-        };
-      });
+      return mapInvoices(
+        (invoices || []) as DbInvoice[],
+        (payments || []) as DbPayment[],
+      );
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 5, // 5 min — data stays fresh, no refetch on mount
+    gcTime: 1000 * 60 * 30, // 30 min cache
+    refetchOnWindowFocus: false,
   });
 }
 
@@ -126,7 +133,7 @@ export function useAddInvoice() {
       const perInstallment = Math.round((data.totalAmount / installments) * 100) / 100;
 
       const rows = Array.from({ length: installments - startFrom + 1 }, (_, idx) => {
-        const i = startFrom - 1 + idx; // absolute index (0-based)
+        const i = startFrom - 1 + idx;
         return {
           user_id: user.id,
           description: installments > 1 ? `${data.description} (${i + 1}/${installments})` : data.description,
@@ -144,8 +151,9 @@ export function useAddInvoice() {
         };
       });
 
-      const { error } = await supabase.from('invoices').insert(rows);
+      const { data: inserted, error } = await supabase.from('invoices').insert(rows).select();
       if (error) throw error;
+      return inserted;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
   });
@@ -168,7 +176,33 @@ export function useUpdateInvoice() {
       const { error } = await supabase.from('invoices').update(mapped).eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
+    // Optimistic: update cache immediately
+    onMutate: async ({ id, data }) => {
+      await qc.cancelQueries({ queryKey: ['invoices'] });
+      const prev = qc.getQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] });
+
+      qc.setQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] }, (old) => {
+        if (!old) return old;
+        return old.map(inv => inv.id === id ? {
+          ...inv,
+          ...(data.description !== undefined && { description: data.description }),
+          ...(data.category !== undefined && { category: data.category }),
+          ...(data.totalAmount !== undefined && { totalAmount: data.totalAmount, remainingBalance: data.totalAmount - inv.totalPaid }),
+          ...(data.dueDate !== undefined && { dueDate: data.dueDate }),
+          ...(data.referenceMonth !== undefined && { referenceMonth: data.referenceMonth }),
+          ...(data.card !== undefined && { card: data.card || undefined }),
+          ...(data.paymentMethod !== undefined && { paymentMethod: data.paymentMethod || undefined }),
+        } : inv);
+      });
+
+      return { prev };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev) {
+        context.prev.forEach(([key, data]) => qc.setQueryData(key, data));
+      }
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
   });
 }
 
@@ -184,8 +218,29 @@ export function useDeleteInvoice() {
         const { error } = await supabase.from('invoices').delete().eq('id', id);
         if (error) throw error;
       }
+      return { id, installmentGroup };
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
+    // Optimistic: remove from cache immediately
+    onMutate: async ({ id, installmentGroup }) => {
+      await qc.cancelQueries({ queryKey: ['invoices'] });
+      const prev = qc.getQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] });
+
+      qc.setQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] }, (old) => {
+        if (!old) return old;
+        if (installmentGroup) {
+          return old.filter(inv => inv.installmentGroup !== installmentGroup);
+        }
+        return old.filter(inv => inv.id !== id);
+      });
+
+      return { prev };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev) {
+        context.prev.forEach(([key, data]) => qc.setQueryData(key, data));
+      }
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
   });
 }
 
@@ -210,7 +265,109 @@ export function useAddPayment() {
       });
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
+    // Optimistic: update totals immediately
+    onMutate: async (data) => {
+      await qc.cancelQueries({ queryKey: ['invoices'] });
+      const prev = qc.getQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] });
+
+      qc.setQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] }, (old) => {
+        if (!old) return old;
+        return old.map(inv => {
+          if (inv.id !== data.invoiceId) return inv;
+          const newTotalPaid = inv.totalPaid + data.amount;
+          const newRemaining = inv.totalAmount - newTotalPaid;
+          let status: InvoiceStatus = 'pending';
+          if (newTotalPaid >= inv.totalAmount) status = 'paid';
+          else if (newTotalPaid > 0) status = 'partial';
+          else if (new Date() > new Date(inv.dueDate)) status = 'overdue';
+
+          return {
+            ...inv,
+            totalPaid: newTotalPaid,
+            remainingBalance: newRemaining,
+            status,
+            payments: [...inv.payments, {
+              id: `temp-${Date.now()}`,
+              invoiceId: data.invoiceId,
+              amount: data.amount,
+              date: data.date,
+              isEarly: data.isEarly,
+            }],
+          };
+        });
+      });
+
+      return { prev };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev) {
+        context.prev.forEach(([key, data]) => qc.setQueryData(key, data));
+      }
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
+  });
+}
+
+// Batch payment mutation for PayAll
+export function useAddPaymentsBatch() {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payments: Array<{
+      invoiceId: string;
+      amount: number;
+      date: string;
+      isEarly: boolean;
+    }>) => {
+      if (!user) throw new Error('Not authenticated');
+      const rows = payments.map(p => ({
+        user_id: user.id,
+        invoice_id: p.invoiceId,
+        amount: p.amount,
+        date: p.date,
+        is_early: p.isEarly,
+      }));
+      const { error } = await supabase.from('payments').insert(rows);
+      if (error) throw error;
+    },
+    onMutate: async (payments) => {
+      await qc.cancelQueries({ queryKey: ['invoices'] });
+      const prev = qc.getQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] });
+
+      const paymentMap = new Map<string, { amount: number; date: string; isEarly: boolean }>();
+      payments.forEach(p => paymentMap.set(p.invoiceId, p));
+
+      qc.setQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] }, (old) => {
+        if (!old) return old;
+        return old.map(inv => {
+          const p = paymentMap.get(inv.id);
+          if (!p) return inv;
+          const newTotalPaid = inv.totalPaid + p.amount;
+          return {
+            ...inv,
+            totalPaid: newTotalPaid,
+            remainingBalance: inv.totalAmount - newTotalPaid,
+            status: 'paid' as InvoiceStatus,
+            payments: [...inv.payments, {
+              id: `temp-${Date.now()}-${inv.id}`,
+              invoiceId: inv.id,
+              amount: p.amount,
+              date: p.date,
+              isEarly: p.isEarly,
+            }],
+          };
+        });
+      });
+
+      return { prev };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev) {
+        context.prev.forEach(([key, data]) => qc.setQueryData(key, data));
+      }
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
   });
 }
 
