@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import ChangePassword from "./pages/ChangePassword";
 import NotFound from "./pages/NotFound";
+import InstallPWA from "./components/InstallPWA";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <InstallPWA />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
