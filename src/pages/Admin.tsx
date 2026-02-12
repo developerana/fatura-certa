@@ -5,7 +5,7 @@ import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, Trash2, Users, Shield, User } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Shield, User, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
@@ -47,6 +47,9 @@ export default function Admin() {
   const [creating, setCreating] = useState(false);
   const [deleteUser, setDeleteUser] = useState<AdminUser | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [resetUser, setResetUser] = useState<AdminUser | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [resetting, setResetting] = useState(false);
 
   const fetchUsers = async () => {
     setLoadingUsers(true);
@@ -135,6 +138,43 @@ export default function Admin() {
       toast.error(err.message || 'Erro ao remover usuário');
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetUser || !newPassword) return;
+    if (newPassword.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+    setResetting(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Sem sessão');
+
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-create-user?action=reset-password`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: resetUser.id, new_password: newPassword }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error);
+
+      toast.success(`Senha de ${resetUser.display_name} redefinida! Ao fazer login, será solicitada uma nova senha.`);
+      setResetUser(null);
+      setNewPassword('');
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao redefinir senha');
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -247,14 +287,25 @@ export default function Admin() {
                     {u.roles.includes('admin') ? 'Admin' : 'Usuário'}
                   </span>
                   {u.id !== user?.id && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => setDeleteUser(u)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary"
+                        title="Redefinir senha"
+                        onClick={() => setResetUser(u)}
+                      >
+                        <KeyRound className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => setDeleteUser(u)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -283,6 +334,34 @@ export default function Admin() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!resetUser} onOpenChange={(open) => { if (!open) { setResetUser(null); setNewPassword(''); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Redefinir Senha</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Defina uma senha temporária para <strong>{resetUser?.display_name}</strong> ({resetUser?.email}). Ao fazer login, o usuário será obrigado a criar uma nova senha.
+          </p>
+          <form onSubmit={handleResetPassword} className="space-y-4">
+            <div>
+              <Label htmlFor="reset_password">Nova senha temporária</Label>
+              <Input
+                id="reset_password"
+                type="password"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                minLength={6}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={resetting}>
+              {resetting ? 'Redefinindo...' : 'Redefinir Senha'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
