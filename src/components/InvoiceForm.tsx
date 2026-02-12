@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Invoice, InvoiceCategory, CATEGORY_LABELS, getCardOptions, addCardOption } from '@/types/invoice';
+import { Invoice, InvoiceCategory, CATEGORY_LABELS, getCardOptions, addCardOption, getPaymentMethodOptions, addPaymentMethodOption } from '@/types/invoice';
 import { useAddInvoice, useUpdateInvoice } from '@/hooks/useInvoices';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,8 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
   const [installments, setInstallments] = useState('1');
   const [showCustomCard, setShowCustomCard] = useState(false);
   const [customCard, setCustomCard] = useState('');
+  const [showCustomPayment, setShowCustomPayment] = useState(false);
+  const [customPayment, setCustomPayment] = useState('');
 
   const addInvoice = useAddInvoice();
   const updateInvoice = useUpdateInvoice();
@@ -164,18 +166,20 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
             </div>
             <div>
               <Label>Forma de Pagamento</Label>
-              <Select value={paymentMethod || 'none'} onValueChange={(v) => setPaymentMethod(v === 'none' ? '' : v)}>
+              <Select value={paymentMethod || 'none'} onValueChange={(v) => { if (v === 'custom_payment') { setShowCustomPayment(true); } else { setPaymentMethod(v === 'none' ? '' : v); } }}>
                 <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Nenhuma</SelectItem>
-                  <SelectItem value="PIX">PIX</SelectItem>
-                  <SelectItem value="Boleto">Boleto</SelectItem>
-                  <SelectItem value="Débito">Débito</SelectItem>
-                  <SelectItem value="Crédito">Crédito</SelectItem>
-                  <SelectItem value="Dinheiro">Dinheiro</SelectItem>
-                  <SelectItem value="Transferência">Transferência</SelectItem>
+                  {getPaymentMethodOptions().map(m => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
+                  <SelectItem value="custom_payment">+ Adicionar forma</SelectItem>
                 </SelectContent>
               </Select>
+              {showCustomPayment && (
+                <div className="flex gap-2 mt-2">
+                  <Input value={customPayment} onChange={e => setCustomPayment(e.target.value)} placeholder="Nome da forma" maxLength={30} className="flex-1" />
+                  <Button type="button" size="sm" onClick={() => { if (customPayment.trim()) { addPaymentMethodOption(customPayment.trim()); setPaymentMethod(customPayment.trim()); setCustomPayment(''); setShowCustomPayment(false); } }}>OK</Button>
+                </div>
+              )}
             </div>
           </div>
           <div>
