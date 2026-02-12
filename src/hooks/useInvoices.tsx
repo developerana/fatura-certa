@@ -2,7 +2,27 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { InvoiceWithStatus, InvoiceStatus, InvoiceCategory } from '@/types/invoice';
+import { addToQueue, isOnline } from '@/lib/offlineQueue';
 
+// ─── Local cache helpers ───
+const LOCAL_CACHE_KEY = 'invoices_cache';
+
+function saveLocalCache(userId: string, data: InvoiceWithStatus[]) {
+  try {
+    localStorage.setItem(`${LOCAL_CACHE_KEY}_${userId}`, JSON.stringify(data));
+  } catch {}
+}
+
+function loadLocalCache(userId: string): InvoiceWithStatus[] | null {
+  try {
+    const raw = localStorage.getItem(`${LOCAL_CACHE_KEY}_${userId}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+// ─── DB types ───
 interface DbInvoice {
   id: string;
   user_id: string;
@@ -78,6 +98,13 @@ export function useInvoicesWithStatus() {
     queryFn: async (): Promise<InvoiceWithStatus[]> => {
       if (!user) return [];
 
+      // If offline, return cached data
+      if (!isOnline()) {
+        const cached = loadLocalCache(user.id);
+        if (cached) return cached;
+        throw new Error('Sem conexão e sem cache local');
+      }
+
       const [{ data: invoices, error: ie }, { data: payments, error: pe }] = await Promise.all([
         supabase.from('invoices').select('*').eq('user_id', user.id),
         supabase.from('payments').select('*').eq('user_id', user.id),
@@ -86,15 +113,25 @@ export function useInvoicesWithStatus() {
       if (ie) throw ie;
       if (pe) throw pe;
 
-      return mapInvoices(
+      const result = mapInvoices(
         (invoices || []) as DbInvoice[],
         (payments || []) as DbPayment[],
       );
+
+      // Save to local cache for offline use
+      saveLocalCache(user.id, result);
+
+      return result;
     },
     enabled: !!user,
-    staleTime: 1000 * 60 * 5, // 5 min — data stays fresh, no refetch on mount
-    gcTime: 1000 * 60 * 30, // 30 min cache
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Don't retry when offline
+      if (!isOnline()) return false;
+      return failureCount < 3;
+    },
   });
 }
 
@@ -135,7 +172,6 @@ export function useAddInvoice() {
       const rows = Array.from({ length: installments - startFrom + 1 }, (_, idx) => {
         const i = startFrom - 1 + idx;
         return {
-          user_id: user.id,
           description: installments > 1 ? `${data.description} (${i + 1}/${installments})` : data.description,
           category: data.category,
           total_amount: i === installments - 1
@@ -151,7 +187,13 @@ export function useAddInvoice() {
         };
       });
 
-      const { data: inserted, error } = await supabase.from('invoices').insert(rows).select();
+      if (!isOnline()) {
+        addToQueue({ type: 'add_invoice', payload: rows });
+        return rows; // Return for optimistic update
+      }
+
+      const rowsWithUser = rows.map(r => ({ ...r, user_id: user.id }));
+      const { data: inserted, error } = await supabase.from('invoices').insert(rowsWithUser).select();
       if (error) throw error;
       return inserted;
     },
@@ -173,10 +215,14 @@ export function useUpdateInvoice() {
       if (data.card !== undefined) mapped.card = data.card || null;
       if (data.paymentMethod !== undefined) mapped.payment_method = data.paymentMethod || null;
 
+      if (!isOnline()) {
+        addToQueue({ type: 'update_invoice', payload: { id, data: mapped } });
+        return;
+      }
+
       const { error } = await supabase.from('invoices').update(mapped).eq('id', id);
       if (error) throw error;
     },
-    // Optimistic: update cache immediately
     onMutate: async ({ id, data }) => {
       await qc.cancelQueries({ queryKey: ['invoices'] });
       const prev = qc.getQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] });
@@ -202,7 +248,9 @@ export function useUpdateInvoice() {
         context.prev.forEach(([key, data]) => qc.setQueryData(key, data));
       }
     },
-    onSettled: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
+    onSettled: () => {
+      if (isOnline()) qc.invalidateQueries({ queryKey: ['invoices'] });
+    },
   });
 }
 
@@ -211,6 +259,11 @@ export function useDeleteInvoice() {
 
   return useMutation({
     mutationFn: async ({ id, installmentGroup }: { id: string; installmentGroup?: string | null }) => {
+      if (!isOnline()) {
+        addToQueue({ type: 'delete_invoice', payload: { id, installmentGroup } });
+        return { id, installmentGroup };
+      }
+
       if (installmentGroup) {
         const { error } = await supabase.from('invoices').delete().eq('installment_group', installmentGroup);
         if (error) throw error;
@@ -220,7 +273,6 @@ export function useDeleteInvoice() {
       }
       return { id, installmentGroup };
     },
-    // Optimistic: remove from cache immediately
     onMutate: async ({ id, installmentGroup }) => {
       await qc.cancelQueries({ queryKey: ['invoices'] });
       const prev = qc.getQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] });
@@ -240,7 +292,9 @@ export function useDeleteInvoice() {
         context.prev.forEach(([key, data]) => qc.setQueryData(key, data));
       }
     },
-    onSettled: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
+    onSettled: () => {
+      if (isOnline()) qc.invalidateQueries({ queryKey: ['invoices'] });
+    },
   });
 }
 
@@ -256,16 +310,25 @@ export function useAddPayment() {
       isEarly: boolean;
     }) => {
       if (!user) throw new Error('Not authenticated');
-      const { error } = await supabase.from('payments').insert({
-        user_id: user.id,
+
+      const payload = {
         invoice_id: data.invoiceId,
         amount: data.amount,
         date: data.date,
         is_early: data.isEarly,
+      };
+
+      if (!isOnline()) {
+        addToQueue({ type: 'add_payment', payload });
+        return;
+      }
+
+      const { error } = await supabase.from('payments').insert({
+        ...payload,
+        user_id: user.id,
       });
       if (error) throw error;
     },
-    // Optimistic: update totals immediately
     onMutate: async (data) => {
       await qc.cancelQueries({ queryKey: ['invoices'] });
       const prev = qc.getQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] });
@@ -304,11 +367,12 @@ export function useAddPayment() {
         context.prev.forEach(([key, data]) => qc.setQueryData(key, data));
       }
     },
-    onSettled: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
+    onSettled: () => {
+      if (isOnline()) qc.invalidateQueries({ queryKey: ['invoices'] });
+    },
   });
 }
 
-// Batch payment mutation for PayAll
 export function useAddPaymentsBatch() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -321,14 +385,21 @@ export function useAddPaymentsBatch() {
       isEarly: boolean;
     }>) => {
       if (!user) throw new Error('Not authenticated');
+
       const rows = payments.map(p => ({
-        user_id: user.id,
         invoice_id: p.invoiceId,
         amount: p.amount,
         date: p.date,
         is_early: p.isEarly,
       }));
-      const { error } = await supabase.from('payments').insert(rows);
+
+      if (!isOnline()) {
+        addToQueue({ type: 'add_payments_batch', payload: rows });
+        return;
+      }
+
+      const rowsWithUser = rows.map(r => ({ ...r, user_id: user.id }));
+      const { error } = await supabase.from('payments').insert(rowsWithUser);
       if (error) throw error;
     },
     onMutate: async (payments) => {
@@ -367,7 +438,9 @@ export function useAddPaymentsBatch() {
         context.prev.forEach(([key, data]) => qc.setQueryData(key, data));
       }
     },
-    onSettled: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
+    onSettled: () => {
+      if (isOnline()) qc.invalidateQueries({ queryKey: ['invoices'] });
+    },
   });
 }
 
