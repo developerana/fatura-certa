@@ -1,3 +1,4 @@
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useCardBreakdown } from '@/hooks/useInvoices';
 import { InvoiceWithStatus } from '@/types/invoice';
 
@@ -24,41 +25,37 @@ export function CardChart({ referenceMonth, invoices }: CardChartProps) {
     );
   }
 
-  const maxValue = Math.max(...data.map(d => d.value));
-  const total = data.reduce((sum, d) => sum + d.value, 0);
+  const chartData = data.map(d => ({ name: d.card, value: d.value }));
+  const total = chartData.reduce((sum, d) => sum + d.value, 0);
 
   return (
     <div className="glass-card p-4 sm:p-6">
       <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Gastos por Cartão</h3>
-      <div className="space-y-4">
-        {data.map((item, index) => {
-          const percentage = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
-          const share = total > 0 ? ((item.value / total) * 100).toFixed(0) : '0';
-          return (
-            <div key={item.card} className="space-y-1.5">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: COLORS[index % COLORS.length] }} />
-                  <span className="text-muted-foreground truncate">{item.card}</span>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="font-mono text-xs font-medium">{formatCurrency(item.value)}</span>
-                  <span className="text-[10px] text-muted-foreground w-8 text-right">{share}%</span>
-                </div>
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex-shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={chartData} cx="50%" cy="50%" innerRadius={35} outerRadius={65} paddingAngle={3} dataKey="value" strokeWidth={0}>
+                {chartData.map((_, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+              </Pie>
+              <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))', fontSize: '12px' }} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="font-mono text-xs font-semibold text-foreground">{formatCurrency(total)}</span>
+          </div>
+        </div>
+        <div className="flex-1 space-y-2 min-w-0">
+          {chartData.map((item, index) => (
+            <div key={item.name} className="flex items-center justify-between text-sm gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: COLORS[index % COLORS.length] }} />
+                <span className="text-muted-foreground truncate">{item.name}</span>
               </div>
-              <div className="h-2 rounded-full bg-secondary/50 overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${percentage}%`, background: COLORS[index % COLORS.length] }}
-                />
-              </div>
+              <span className="font-mono text-xs font-medium flex-shrink-0">{((item.value / total) * 100).toFixed(0)}%</span>
             </div>
-          );
-        })}
-      </div>
-      <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">Total</span>
-        <span className="font-mono font-semibold">{formatCurrency(total)}</span>
+          ))}
+        </div>
       </div>
     </div>
   );
