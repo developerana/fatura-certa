@@ -42,7 +42,23 @@ export function CategoryChart({ referenceMonth, invoices }: CategoryChartProps) 
               <Pie data={chartData} cx="50%" cy="50%" innerRadius={35} outerRadius={65} paddingAngle={3} dataKey="value" strokeWidth={0}>
                 {chartData.map((_, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
               </Pie>
-              <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))', fontSize: '12px' }} />
+              <Tooltip
+                formatter={(value: number) => formatCurrency(value)}
+                labelFormatter={(label: string) => label}
+                contentStyle={{
+                  background: 'hsl(var(--popover))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '10px',
+                  color: 'hsl(var(--popover-foreground))',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  padding: '8px 14px',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                  lineHeight: '1.6',
+                }}
+                itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
+                labelStyle={{ color: 'hsl(var(--muted-foreground))', fontSize: '11px', marginBottom: '2px' }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
