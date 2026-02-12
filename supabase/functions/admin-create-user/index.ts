@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabaseAnonKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
 
     // Verify caller is admin using their token
     const callerClient = createClient(supabaseUrl, supabaseAnonKey, {
@@ -154,7 +154,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Erro interno' }), {
+    console.error('Edge function error:', err)
+    return new Response(JSON.stringify({ error: err?.message || 'Erro interno' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
