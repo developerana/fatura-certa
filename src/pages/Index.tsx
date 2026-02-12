@@ -42,6 +42,7 @@ const Index = () => {
   const [payAllOpen, setPayAllOpen] = useState(false);
 
   const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
+  const availableCategories = [...new Set(allInvoices.map(i => i.category))];
 
   const now = new Date();
   const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -137,6 +138,7 @@ const Index = () => {
               onCategoryChange={setFilterCategory}
               filterCard={filterCard}
               onCardChange={setFilterCard}
+              availableCategories={availableCategories}
             />
           </div>
 
