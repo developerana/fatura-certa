@@ -77,7 +77,7 @@ const Index = () => {
               <Receipt className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm sm:text-lg font-bold tracking-tight truncate">Controle de Faturas</h1>
+              <h1 className="text-sm sm:text-lg font-bold tracking-tight truncate">Gerenciador de Faturas e Gastos</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground">{formatMonthLabel(referenceMonth)}</p>
             </div>
           </div>

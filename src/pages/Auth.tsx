@@ -33,7 +33,7 @@ export default function Auth() {
           <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto">
             <Receipt className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="text-xl font-bold">Controle de Faturas</h1>
+          <h1 className="text-xl font-bold">Gerenciador de Faturas e Gastos</h1>
           <p className="text-sm text-muted-foreground">Entre na sua conta</p>
         </div>
 
