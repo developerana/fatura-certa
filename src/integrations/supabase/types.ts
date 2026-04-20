@@ -105,19 +105,25 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          password_changed_at: string | null
           user_id: string
+          username: string
         }
         Insert: {
           created_at?: string
           display_name?: string | null
           id?: string
+          password_changed_at?: string | null
           user_id: string
+          username: string
         }
         Update: {
           created_at?: string
           display_name?: string | null
           id?: string
+          password_changed_at?: string | null
           user_id?: string
+          username?: string
         }
         Relationships: []
       }
@@ -154,6 +160,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_username_available: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"

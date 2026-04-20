@@ -9,6 +9,7 @@ import { OfflineIndicator } from "@/components/OfflineIndicator";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 import NotFound from "./pages/NotFound";
 import InstallPWA from "./components/InstallPWA";
@@ -57,6 +58,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
               <Route path="*" element={<NotFound />} />

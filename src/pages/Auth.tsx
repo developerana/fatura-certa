@@ -7,7 +7,7 @@ import { Receipt } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Auth() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -16,8 +16,29 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      const id = identifier.trim();
+      let email = id;
+
+      // If no "@", treat as username and look up email via edge function
+      if (!id.includes('@')) {
+        const username = id.toLowerCase();
+        if (!/^[a-z0-9_]{3,30}$/.test(username)) {
+          throw new Error('Usuário ou senha inválidos');
+        }
+        const { data, error } = await supabase.functions.invoke('lookup-email-by-username', {
+          body: { username },
+        });
+        if (error || !data?.email) {
+          throw new Error('Usuário ou senha inválidos');
+        }
+        email = data.email as string;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (error) {
+        // Generic message to prevent enumeration
+        throw new Error('Usuário ou senha inválidos');
+      }
       toast.success('Login realizado com sucesso!');
     } catch (err: any) {
       toast.error(err.message || 'Erro ao processar');
@@ -39,13 +60,14 @@ export default function Auth() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="identifier">Email ou Username</Label>
             <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="seu@email.com"
+              id="identifier"
+              type="text"
+              value={identifier}
+              onChange={e => setIdentifier(e.target.value)}
+              placeholder="seu@email.com ou seu_username"
+              autoComplete="username"
               required
             />
           </div>
@@ -58,6 +80,7 @@ export default function Auth() {
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
               minLength={6}
+              autoComplete="current-password"
               required
             />
           </div>
