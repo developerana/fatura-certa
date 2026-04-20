@@ -72,7 +72,7 @@ export function PaymentDialog({ open, onOpenChange, invoice }: PaymentDialogProp
           <div>
             <div className="flex items-center justify-between mb-1">
               <Label>Valor do Pagamento *</Label>
-              <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => { setAmountCents(realToCents(maxAmount)); setConfirming(false); }}>Pagar total</Button>
+              <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => { setAmountCents(realToCents(maxAmount)); setConfirming(false); }}>VALOR TOTAL</Button>
             </div>
             <CurrencyInput value={amountCents} onValueChange={(v) => { setAmountCents(v); setConfirming(false); }} />
           </div>
