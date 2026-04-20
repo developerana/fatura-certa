@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Invoice, InvoiceCategory, CATEGORY_LABELS, getCardOptions, addCardOption, getPaymentMethodOptions, addPaymentMethodOption } from '@/types/invoice';
-import { useAddInvoice, useUpdateInvoice } from '@/hooks/useInvoices';
+import { useAddInvoice, useUpdateInvoice, useInvoicesWithStatus } from '@/hooks/useInvoices';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,6 +35,16 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
 
   const addInvoice = useAddInvoice();
   const updateInvoice = useUpdateInvoice();
+  const { data: allInvoices = [] } = useInvoicesWithStatus();
+
+  // Find the most common due date for a given reference month
+  const suggestedDueDate = useMemo(() => {
+    const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
+    if (monthInvoices.length === 0) return '';
+    const counts: Record<string, number> = {};
+    monthInvoices.forEach(i => { counts[i.dueDate] = (counts[i.dueDate] || 0) + 1; });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+  }, [allInvoices, referenceMonth]);
 
   useEffect(() => {
     if (open) {
@@ -48,11 +58,19 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
         setPaymentMethod(editInvoice.paymentMethod || '');
         setNotes(editInvoice.notes || '');
       } else {
-        setDescription(''); setCategory('outros'); setAmountCents(0); setDueDate('');
+        setDescription(''); setCategory('outros'); setAmountCents(0);
+        setDueDate(suggestedDueDate);
         setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setNotes(''); setInstallments('1'); setCurrentInstallment('1');
       }
     }
   }, [open, editInvoice, defaultMonth]);
+
+  // When referenceMonth changes within the form (new invoice), auto-fill due date if empty
+  useEffect(() => {
+    if (open && !editInvoice && !dueDate && suggestedDueDate) {
+      setDueDate(suggestedDueDate);
+    }
+  }, [referenceMonth, suggestedDueDate, open, editInvoice]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
