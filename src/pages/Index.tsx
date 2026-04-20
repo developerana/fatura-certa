@@ -13,7 +13,7 @@ import { PaymentDialog } from '@/components/PaymentDialog';
 import { PayAllDialog } from '@/components/PayAllDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Receipt, LogOut, CheckCircle2, Users } from 'lucide-react';
+import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 function getCurrentMonth() {
@@ -93,6 +93,9 @@ const Index = () => {
             </Button>
             <Button onClick={() => { setEditInvoice(null); setFormOpen(true); }} size="sm" className="text-xs sm:text-sm px-2 sm:px-3">
               <Plus className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Nova Fatura</span>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} title="Perfil">
+              <UserCircle className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" onClick={signOut} title="Sair">
               <LogOut className="h-4 w-4" />
