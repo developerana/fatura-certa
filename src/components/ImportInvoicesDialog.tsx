@@ -170,7 +170,7 @@ export function ImportInvoicesDialog({ open, onOpenChange }: Props) {
                 </thead>
                 <tbody>
                   {transactions.map(t => (
-                    <tr key={t.id} className={cn('border-t border-border', t.isDuplicate && 'bg-warning/10')}>
+                    <tr key={t.id} className={cn('border-t border-border', t.isDuplicate && 'bg-[hsl(var(--status-partial-bg))]')}>
                       <td className="p-2">
                         <Checkbox
                           checked={t.selected}
@@ -192,7 +192,7 @@ export function ImportInvoicesDialog({ open, onOpenChange }: Props) {
                           className="h-8 min-w-[180px]"
                         />
                         {t.isDuplicate && (
-                          <span className="text-[10px] text-warning flex items-center gap-1 mt-1">
+                          <span className="text-[10px] text-[hsl(var(--status-partial))] flex items-center gap-1 mt-1">
                             <AlertTriangle className="h-3 w-3" /> Possível duplicata
                           </span>
                         )}
