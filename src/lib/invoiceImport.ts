@@ -1,6 +1,6 @@
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
-// @ts-expect-error - no types for node-ofx-parser
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import ofxParser from 'node-ofx-parser';
 import { InvoiceCategory, InvoiceWithStatus } from '@/types/invoice';
 
