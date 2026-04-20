@@ -7,6 +7,7 @@ import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { DashboardCards } from '@/components/DashboardCards';
 import { CategoryChart } from '@/components/CategoryChart';
 import { CardChart } from '@/components/CardChart';
+import { CardTotalCard } from '@/components/CardTotalCard';
 import { InvoiceList } from '@/components/InvoiceList';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { PaymentDialog } from '@/components/PaymentDialog';
@@ -106,6 +107,8 @@ const Index = () => {
 
       <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <DashboardCards referenceMonth={referenceMonth} invoices={allInvoices} />
+
+        <CardTotalCard referenceMonth={referenceMonth} invoices={allInvoices} filterCard={filterCard} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
 
