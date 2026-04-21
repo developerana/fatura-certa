@@ -209,7 +209,17 @@ export function useUpdateInvoice() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Record<string, any> }) => {
+    mutationFn: async ({
+      id,
+      data,
+      installmentGroup,
+      installmentNumber,
+    }: {
+      id: string;
+      data: Record<string, any>;
+      installmentGroup?: string | null;
+      installmentNumber?: number | null;
+    }) => {
       const mapped: Record<string, any> = {};
       if (data.description !== undefined) mapped.description = data.description;
       if (data.category !== undefined) mapped.category = data.category;
@@ -221,30 +231,52 @@ export function useUpdateInvoice() {
       if (data.responsiblePerson !== undefined) mapped.responsible_person = data.responsiblePerson?.trim() || null;
 
       if (!isOnline()) {
-        addToQueue({ type: 'update_invoice', payload: { id, data: mapped } });
+        addToQueue({ type: 'update_invoice', payload: { id, data: mapped, installmentGroup, installmentNumber } });
         return;
       }
 
       const { error } = await supabase.from('invoices').update(mapped).eq('id', id);
       if (error) throw error;
+
+      if (mapped.responsible_person !== undefined && installmentGroup && installmentNumber) {
+        const { error: futureError } = await supabase
+          .from('invoices')
+          .update({ responsible_person: mapped.responsible_person })
+          .eq('installment_group', installmentGroup)
+          .gte('installment_number', installmentNumber);
+        if (futureError) throw futureError;
+      }
     },
-    onMutate: async ({ id, data }) => {
+    onMutate: async ({ id, data, installmentGroup, installmentNumber }) => {
       await qc.cancelQueries({ queryKey: ['invoices'] });
       const prev = qc.getQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] });
 
       qc.setQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] }, (old) => {
         if (!old) return old;
-        return old.map(inv => inv.id === id ? {
-          ...inv,
-          ...(data.description !== undefined && { description: data.description }),
-          ...(data.category !== undefined && { category: data.category }),
-          ...(data.totalAmount !== undefined && { totalAmount: data.totalAmount, remainingBalance: data.totalAmount - inv.totalPaid }),
-          ...(data.dueDate !== undefined && { dueDate: data.dueDate }),
-          ...(data.referenceMonth !== undefined && { referenceMonth: data.referenceMonth }),
-          ...(data.card !== undefined && { card: data.card || undefined }),
-          ...(data.paymentMethod !== undefined && { paymentMethod: data.paymentMethod || undefined }),
-          ...(data.responsiblePerson !== undefined && { responsiblePerson: data.responsiblePerson?.trim() || undefined }),
-        } : inv);
+        return old.map(inv => {
+          const isCurrent = inv.id === id;
+          const isFutureInstallment = Boolean(
+            data.responsiblePerson !== undefined &&
+            installmentGroup &&
+            installmentNumber &&
+            inv.installmentGroup === installmentGroup &&
+            (inv.installmentNumber || 1) >= installmentNumber
+          );
+
+          if (!isCurrent && !isFutureInstallment) return inv;
+
+          return {
+            ...inv,
+            ...(isCurrent && data.description !== undefined && { description: data.description }),
+            ...(isCurrent && data.category !== undefined && { category: data.category }),
+            ...(isCurrent && data.totalAmount !== undefined && { totalAmount: data.totalAmount, remainingBalance: data.totalAmount - inv.totalPaid }),
+            ...(isCurrent && data.dueDate !== undefined && { dueDate: data.dueDate }),
+            ...(isCurrent && data.referenceMonth !== undefined && { referenceMonth: data.referenceMonth }),
+            ...(isCurrent && data.card !== undefined && { card: data.card || undefined }),
+            ...(isCurrent && data.paymentMethod !== undefined && { paymentMethod: data.paymentMethod || undefined }),
+            ...(data.responsiblePerson !== undefined && { responsiblePerson: data.responsiblePerson?.trim() || undefined }),
+          };
+        });
       });
 
       return { prev };
