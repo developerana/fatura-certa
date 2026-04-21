@@ -17,6 +17,7 @@ import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
 import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle, Upload, UserRound } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { getResponsibleShare, getUniqueResponsiblePeople, isResponsibleForInvoice } from '@/lib/responsible';
 
 function getCurrentMonth() {
   const now = new Date();
@@ -51,11 +52,11 @@ const Index = () => {
 
   const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
   const availableCategories = [...new Set(allInvoices.map(i => i.category))];
-  const availableResponsibles = [...new Set(allInvoices.map(i => i.responsiblePerson).filter(Boolean))] as string[];
+  const availableResponsibles = getUniqueResponsiblePeople(allInvoices);
   const responsibleInvoices = filterResponsible === 'all'
     ? []
-    : monthInvoices.filter(i => i.responsiblePerson === filterResponsible);
-  const responsibleTotal = responsibleInvoices.reduce((sum, i) => sum + i.remainingBalance, 0);
+    : monthInvoices.filter(i => isResponsibleForInvoice(i, filterResponsible));
+  const responsibleTotal = responsibleInvoices.reduce((sum, i) => sum + getResponsibleShare(i, filterResponsible), 0);
 
   const now = new Date();
   const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);

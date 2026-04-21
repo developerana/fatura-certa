@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { getResponsibleShare, isResponsibleForInvoice } from '@/lib/responsible';
 
 interface InvoiceListProps {
   invoices: InvoiceWithStatus[];
@@ -33,7 +34,7 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterC
     if (filterStatus !== 'all' && inv.status !== filterStatus) return false;
     if (filterCategory !== 'all' && inv.category !== filterCategory) return false;
     if (filterCard !== 'all' && (inv.card || '') !== filterCard) return false;
-    if (filterResponsible !== 'all' && (inv.responsiblePerson || '') !== filterResponsible) return false;
+    if (filterResponsible !== 'all' && !isResponsibleForInvoice(inv, filterResponsible)) return false;
     return true;
   });
 
@@ -78,6 +79,7 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterC
                     <div><span className="text-xs text-muted-foreground">Total</span><p className="font-mono text-sm font-semibold">{formatCurrency(inv.totalAmount)}</p></div>
                     <div><span className="text-xs text-muted-foreground">Pago</span><p className="font-mono text-sm font-medium text-status-paid">{formatCurrency(inv.totalPaid)}</p></div>
                     <div><span className="text-xs text-muted-foreground">Restante</span><p className={`font-mono text-sm font-medium ${isOverdue ? 'text-status-overdue' : ''}`}>{formatCurrency(inv.remainingBalance)}</p></div>
+                    {filterResponsible !== 'all' && (<div><span className="text-xs text-muted-foreground">Repasse</span><p className="font-mono text-sm font-medium text-primary">{formatCurrency(getResponsibleShare(inv, filterResponsible))}</p></div>)}
                   </div>
                   <Progress value={progress} className="h-1.5" />
                 </div>
