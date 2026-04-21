@@ -206,10 +206,12 @@ export function useAddInvoice() {
 }
 
 export function useUpdateInvoice() {
+  const { user } = useAuth();
   const qc = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Record<string, any> }) => {
+      if (!user) throw new Error('Not authenticated');
       const mapped: Record<string, any> = {};
       if (data.description !== undefined) mapped.description = data.description;
       if (data.category !== undefined) mapped.category = data.category;
@@ -225,8 +227,29 @@ export function useUpdateInvoice() {
         return;
       }
 
-      const { error } = await supabase.from('invoices').update(mapped).eq('id', id);
+      const shouldPropagateResponsible = data.responsiblePerson !== undefined;
+      const { data: target, error: targetError } = shouldPropagateResponsible
+        ? await supabase
+            .from('invoices')
+            .select('installment_group, installment_number')
+            .eq('id', id)
+            .eq('user_id', user.id)
+            .maybeSingle()
+        : { data: null, error: null };
+      if (targetError) throw targetError;
+
+      const { error } = await supabase.from('invoices').update(mapped).eq('id', id).eq('user_id', user.id);
       if (error) throw error;
+
+      if (shouldPropagateResponsible && target?.installment_group && target?.installment_number) {
+        const { error: propagateError } = await supabase
+          .from('invoices')
+          .update({ responsible_person: mapped.responsible_person })
+          .eq('user_id', user.id)
+          .eq('installment_group', target.installment_group)
+          .gte('installment_number', target.installment_number);
+        if (propagateError) throw propagateError;
+      }
     },
     onMutate: async ({ id, data }) => {
       await qc.cancelQueries({ queryKey: ['invoices'] });
@@ -234,17 +257,31 @@ export function useUpdateInvoice() {
 
       qc.setQueriesData<InvoiceWithStatus[]>({ queryKey: ['invoices'] }, (old) => {
         if (!old) return old;
-        return old.map(inv => inv.id === id ? {
-          ...inv,
-          ...(data.description !== undefined && { description: data.description }),
-          ...(data.category !== undefined && { category: data.category }),
-          ...(data.totalAmount !== undefined && { totalAmount: data.totalAmount, remainingBalance: data.totalAmount - inv.totalPaid }),
-          ...(data.dueDate !== undefined && { dueDate: data.dueDate }),
-          ...(data.referenceMonth !== undefined && { referenceMonth: data.referenceMonth }),
-          ...(data.card !== undefined && { card: data.card || undefined }),
-          ...(data.paymentMethod !== undefined && { paymentMethod: data.paymentMethod || undefined }),
-          ...(data.responsiblePerson !== undefined && { responsiblePerson: data.responsiblePerson?.trim() || undefined }),
-        } : inv);
+        const target = old.find(inv => inv.id === id);
+        const propagatedResponsible = data.responsiblePerson?.trim() || undefined;
+
+        return old.map(inv => {
+          const receivesResponsible = data.responsiblePerson !== undefined
+            && target?.installmentGroup
+            && inv.installmentGroup === target.installmentGroup
+            && (inv.installmentNumber || 1) >= (target.installmentNumber || 1);
+
+          if (receivesResponsible && inv.id !== id) {
+            return { ...inv, responsiblePerson: propagatedResponsible };
+          }
+
+          return inv.id === id ? {
+            ...inv,
+            ...(data.description !== undefined && { description: data.description }),
+            ...(data.category !== undefined && { category: data.category }),
+            ...(data.totalAmount !== undefined && { totalAmount: data.totalAmount, remainingBalance: data.totalAmount - inv.totalPaid }),
+            ...(data.dueDate !== undefined && { dueDate: data.dueDate }),
+            ...(data.referenceMonth !== undefined && { referenceMonth: data.referenceMonth }),
+            ...(data.card !== undefined && { card: data.card || undefined }),
+            ...(data.paymentMethod !== undefined && { paymentMethod: data.paymentMethod || undefined }),
+            ...(data.responsiblePerson !== undefined && { responsiblePerson: propagatedResponsible }),
+          } : inv;
+        });
       });
 
       return { prev };
