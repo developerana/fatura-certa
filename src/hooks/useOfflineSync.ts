@@ -5,6 +5,10 @@ import { useAuth } from './useAuth';
 import { getQueue, removeFromQueue, OfflineMutation } from '@/lib/offlineQueue';
 import { toast } from 'sonner';
 
+function hasOwn(data: Record<string, any>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(data, key);
+}
+
 export function useOnlineStatus() {
   const [online, setOnline] = useState(navigator.onLine);
 
@@ -48,7 +52,7 @@ async function replayMutation(m: OfflineMutation, userId: string): Promise<boole
         const { id, data, installmentGroup, installmentNumber } = m.payload;
         const { error } = await supabase.from('invoices').update(data).eq('id', id);
         if (error) throw error;
-        if (data.responsible_person !== undefined && installmentGroup && installmentNumber) {
+        if (hasOwn(data, 'responsible_person') && installmentGroup && installmentNumber) {
           const { error: futureError } = await supabase
             .from('invoices')
             .update({ responsible_person: data.responsible_person })
