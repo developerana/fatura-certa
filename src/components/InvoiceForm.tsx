@@ -94,7 +94,12 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
 
     try {
       if (editInvoice) {
-        await updateInvoice.mutateAsync({ id: editInvoice.id, data });
+        await updateInvoice.mutateAsync({
+          id: editInvoice.id,
+          data,
+          installmentGroup: editInvoice.installmentGroup,
+          installmentNumber: editInvoice.installmentNumber,
+        });
         toast.success('Fatura atualizada!');
       } else {
         await addInvoice.mutateAsync(data);
