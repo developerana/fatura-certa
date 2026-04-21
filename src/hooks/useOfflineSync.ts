@@ -45,9 +45,17 @@ async function replayMutation(m: OfflineMutation, userId: string): Promise<boole
         break;
       }
       case 'update_invoice': {
-        const { id, data } = m.payload;
+        const { id, data, installmentGroup, installmentNumber } = m.payload;
         const { error } = await supabase.from('invoices').update(data).eq('id', id);
         if (error) throw error;
+        if (data.responsible_person !== undefined && installmentGroup && installmentNumber) {
+          const { error: futureError } = await supabase
+            .from('invoices')
+            .update({ responsible_person: data.responsible_person })
+            .eq('installment_group', installmentGroup)
+            .gte('installment_number', installmentNumber);
+          if (futureError) throw futureError;
+        }
         break;
       }
       case 'delete_invoice': {
