@@ -34,7 +34,10 @@ interface FiltersBarProps {
   onCategoryChange: (category: InvoiceCategory | 'all') => void;
   filterCard: string;
   onCardChange: (card: string) => void;
+  filterResponsible: string;
+  onResponsibleChange: (responsible: string) => void;
   availableCategories?: InvoiceCategory[];
+  availableResponsibles?: string[];
 }
 
 export function FiltersBar({
@@ -46,7 +49,10 @@ export function FiltersBar({
   onCategoryChange,
   filterCard,
   onCardChange,
+  filterResponsible,
+  onResponsibleChange,
   availableCategories,
+  availableResponsibles = [],
 }: FiltersBarProps) {
   const categoriesToShow = availableCategories
     ? Object.entries(CATEGORY_LABELS).filter(([key]) => availableCategories.includes(key as InvoiceCategory))
@@ -64,7 +70,7 @@ export function FiltersBar({
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
-      <div className="grid grid-cols-3 sm:flex gap-2 w-full sm:w-auto">
+      <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
         <Select value={filterStatus} onValueChange={(v) => onStatusChange(v as InvoiceStatus | 'all')}>
           <SelectTrigger className="h-9 text-xs sm:text-sm sm:w-36">
             <SelectValue placeholder="Status" />
@@ -95,6 +101,17 @@ export function FiltersBar({
             <SelectItem value="all">Todos Cartões</SelectItem>
             {getCardOptions().map(c => (
               <SelectItem key={c} value={c}>{c}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filterResponsible} onValueChange={onResponsibleChange}>
+          <SelectTrigger className="h-9 text-xs sm:text-sm sm:w-44">
+            <SelectValue placeholder="Responsável" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos Responsáveis</SelectItem>
+            {availableResponsibles.map(name => (
+              <SelectItem key={name} value={name}>{name}</SelectItem>
             ))}
           </SelectContent>
         </Select>

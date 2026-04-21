@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { InvoiceWithStatus, STATUS_LABELS, CATEGORY_LABELS, InvoiceCategory, InvoiceStatus } from '@/types/invoice';
 import { useDeleteInvoice } from '@/hooks/useInvoices';
-import { CalendarDays, Trash2, CreditCard, MoreHorizontal } from 'lucide-react';
+import { CalendarDays, Trash2, CreditCard, MoreHorizontal, UserRound } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -15,6 +15,7 @@ interface InvoiceListProps {
   filterStatus: InvoiceStatus | 'all';
   filterCategory: InvoiceCategory | 'all';
   filterCard: string;
+  filterResponsible: string;
 }
 
 function formatCurrency(value: number) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
@@ -24,7 +25,7 @@ const statusClass: Record<InvoiceStatus, string> = {
   paid: 'status-paid', partial: 'status-partial', overdue: 'status-overdue', pending: 'status-pending',
 };
 
-export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterCategory, filterCard }: InvoiceListProps) {
+export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterCategory, filterCard, filterResponsible }: InvoiceListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const deleteInvoice = useDeleteInvoice();
 
@@ -32,6 +33,7 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterC
     if (filterStatus !== 'all' && inv.status !== filterStatus) return false;
     if (filterCategory !== 'all' && inv.category !== filterCategory) return false;
     if (filterCard !== 'all' && (inv.card || '') !== filterCard) return false;
+    if (filterResponsible !== 'all' && (inv.responsiblePerson || '') !== filterResponsible) return false;
     return true;
   });
 
@@ -69,6 +71,7 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterC
                     <span>{CATEGORY_LABELS[inv.category]}</span>
                     <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{formatDate(inv.dueDate)}</span>
                     {inv.card && (<span className="flex items-center gap-1 text-primary"><CreditCard className="h-3 w-3" />{inv.card}</span>)}
+                    {inv.responsiblePerson && (<span className="flex items-center gap-1 text-primary"><UserRound className="h-3 w-3" />{inv.responsiblePerson}</span>)}
                     {inv.paymentMethod && (<span className="text-muted-foreground">{inv.paymentMethod}</span>)}
                   </div>
                   <div className="flex items-center gap-4 mb-2">
