@@ -149,6 +149,10 @@ function shiftDate(dateStr: string, monthsDelta: number): string {
   return d.toISOString().split('T')[0];
 }
 
+function hasOwn(data: Record<string, any>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(data, key);
+}
+
 export function useAddInvoice() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -228,7 +232,7 @@ export function useUpdateInvoice() {
       if (data.referenceMonth !== undefined) mapped.reference_month = data.referenceMonth;
       if (data.card !== undefined) mapped.card = data.card || null;
       if (data.paymentMethod !== undefined) mapped.payment_method = data.paymentMethod || null;
-      if (data.responsiblePerson !== undefined) mapped.responsible_person = data.responsiblePerson?.trim() || null;
+      if (hasOwn(data, 'responsiblePerson')) mapped.responsible_person = data.responsiblePerson?.trim() || null;
 
       if (!isOnline()) {
         addToQueue({ type: 'update_invoice', payload: { id, data: mapped, installmentGroup, installmentNumber } });
@@ -238,7 +242,7 @@ export function useUpdateInvoice() {
       const { error } = await supabase.from('invoices').update(mapped).eq('id', id);
       if (error) throw error;
 
-      if (mapped.responsible_person !== undefined && installmentGroup && installmentNumber) {
+      if (hasOwn(mapped, 'responsible_person') && installmentGroup && installmentNumber) {
         const { error: futureError } = await supabase
           .from('invoices')
           .update({ responsible_person: mapped.responsible_person })
@@ -256,7 +260,7 @@ export function useUpdateInvoice() {
         return old.map(inv => {
           const isCurrent = inv.id === id;
           const isFutureInstallment = Boolean(
-            data.responsiblePerson !== undefined &&
+            hasOwn(data, 'responsiblePerson') &&
             installmentGroup &&
             installmentNumber &&
             inv.installmentGroup === installmentGroup &&
@@ -274,7 +278,7 @@ export function useUpdateInvoice() {
             ...(isCurrent && data.referenceMonth !== undefined && { referenceMonth: data.referenceMonth }),
             ...(isCurrent && data.card !== undefined && { card: data.card || undefined }),
             ...(isCurrent && data.paymentMethod !== undefined && { paymentMethod: data.paymentMethod || undefined }),
-            ...(data.responsiblePerson !== undefined && { responsiblePerson: data.responsiblePerson?.trim() || undefined }),
+            ...(hasOwn(data, 'responsiblePerson') && { responsiblePerson: data.responsiblePerson?.trim() || undefined }),
           };
         });
       });

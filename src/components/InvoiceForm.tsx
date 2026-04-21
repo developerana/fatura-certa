@@ -87,7 +87,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
       referenceMonth,
       card: card || undefined,
       paymentMethod: paymentMethod.trim() || undefined,
-      responsiblePerson: responsiblePerson.trim() || undefined,
+      responsiblePerson: responsiblePerson.trim(),
       installments: parseInt(installments) || 1,
       currentInstallment: parseInt(currentInstallment) || 1,
     };
