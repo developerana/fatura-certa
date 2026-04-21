@@ -25,6 +25,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
   const [referenceMonth, setReferenceMonth] = useState(defaultMonth);
   const [card, setCard] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [responsiblePerson, setResponsiblePerson] = useState('');
   const [notes, setNotes] = useState('');
   const [installments, setInstallments] = useState('1');
   const [currentInstallment, setCurrentInstallment] = useState('1');
@@ -56,11 +57,12 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
         setReferenceMonth(editInvoice.referenceMonth);
         setCard(editInvoice.card || '');
         setPaymentMethod(editInvoice.paymentMethod || '');
+        setResponsiblePerson(editInvoice.responsiblePerson || '');
         setNotes(editInvoice.notes || '');
       } else {
         setDescription(''); setCategory('outros'); setAmountCents(0);
         setDueDate(suggestedDueDate);
-        setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setNotes(''); setInstallments('1'); setCurrentInstallment('1');
+        setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setResponsiblePerson(''); setNotes(''); setInstallments('1'); setCurrentInstallment('1');
       }
     }
   }, [open, editInvoice, defaultMonth]);
@@ -85,6 +87,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
       referenceMonth,
       card: card || undefined,
       paymentMethod: paymentMethod.trim() || undefined,
+      responsiblePerson: responsiblePerson.trim() || undefined,
       installments: parseInt(installments) || 1,
       currentInstallment: parseInt(currentInstallment) || 1,
     };
@@ -224,6 +227,10 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
                 </div>
               )}
             </div>
+          </div>
+          <div>
+            <Label htmlFor="responsiblePerson">Responsável pelo repasse</Label>
+            <Input id="responsiblePerson" value={responsiblePerson} onChange={e => setResponsiblePerson(e.target.value)} placeholder="Ex: João" maxLength={60} />
           </div>
           <div>
             <Label htmlFor="notes">Observações</Label>
