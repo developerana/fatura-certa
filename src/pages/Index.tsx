@@ -15,7 +15,7 @@ import { PayAllDialog } from '@/components/PayAllDialog';
 import { ImportInvoicesDialog } from '@/components/ImportInvoicesDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle, Upload } from 'lucide-react';
+import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle, Upload, UserRound } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 function getCurrentMonth() {
@@ -42,6 +42,7 @@ const Index = () => {
   const [filterStatus, setFilterStatus] = useState<InvoiceStatus | 'all'>('all');
   const [filterCategory, setFilterCategory] = useState<InvoiceCategory | 'all'>('all');
   const [filterCard, setFilterCard] = useState('all');
+  const [filterResponsible, setFilterResponsible] = useState('all');
   const [formOpen, setFormOpen] = useState(false);
   const [editInvoice, setEditInvoice] = useState<InvoiceWithStatus | null>(null);
   const [paymentInvoice, setPaymentInvoice] = useState<InvoiceWithStatus | null>(null);
@@ -50,6 +51,11 @@ const Index = () => {
 
   const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
   const availableCategories = [...new Set(allInvoices.map(i => i.category))];
+  const availableResponsibles = [...new Set(allInvoices.map(i => i.responsiblePerson).filter(Boolean))] as string[];
+  const responsibleInvoices = filterResponsible === 'all'
+    ? []
+    : monthInvoices.filter(i => i.responsiblePerson === filterResponsible);
+  const responsibleTotal = responsibleInvoices.reduce((sum, i) => sum + i.remainingBalance, 0);
 
   const now = new Date();
   const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -115,6 +121,23 @@ const Index = () => {
 
         <CardTotalCard referenceMonth={referenceMonth} invoices={allInvoices} filterCard={filterCard} />
 
+        {filterResponsible !== 'all' && (
+          <div className="glass-card p-4 sm:p-5 border border-primary/30">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs sm:text-sm text-muted-foreground font-medium uppercase tracking-wider">
+                Repasse de {filterResponsible}
+              </span>
+              <UserRound className="h-4 w-4 text-primary" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-primary">
+              {responsibleTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {responsibleInvoices.length} {responsibleInvoices.length === 1 ? 'fatura pendente' : 'faturas pendentes'} no mês
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
 
           <CategoryChart referenceMonth={referenceMonth} invoices={allInvoices} />
@@ -158,7 +181,10 @@ const Index = () => {
               onCategoryChange={setFilterCategory}
               filterCard={filterCard}
               onCardChange={setFilterCard}
+              filterResponsible={filterResponsible}
+              onResponsibleChange={setFilterResponsible}
               availableCategories={availableCategories}
+              availableResponsibles={availableResponsibles}
             />
           </div>
 
@@ -169,6 +195,7 @@ const Index = () => {
             filterStatus={filterStatus}
             filterCategory={filterCategory}
             filterCard={filterCard}
+            filterResponsible={filterResponsible}
           />
         </div>
       </main>

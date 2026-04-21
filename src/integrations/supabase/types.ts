@@ -27,6 +27,7 @@ export type Database = {
           installments: number | null
           payment_method: string | null
           reference_month: string
+          responsible_person: string | null
           total_amount: number
           user_id: string
         }
@@ -42,6 +43,7 @@ export type Database = {
           installments?: number | null
           payment_method?: string | null
           reference_month: string
+          responsible_person?: string | null
           total_amount: number
           user_id: string
         }
@@ -57,6 +59,7 @@ export type Database = {
           installments?: number | null
           payment_method?: string | null
           reference_month?: string
+          responsible_person?: string | null
           total_amount?: number
           user_id?: string
         }

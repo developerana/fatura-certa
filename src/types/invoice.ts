@@ -142,6 +142,7 @@ export interface Invoice {
   referenceMonth: string;
   card?: string;
   paymentMethod?: string;
+  responsiblePerson?: string;
   notes?: string;
   installments?: number;
   installmentNumber?: number;
