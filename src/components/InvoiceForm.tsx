@@ -229,8 +229,9 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
             </div>
           </div>
           <div>
-            <Label htmlFor="responsiblePerson">Responsável pelo repasse</Label>
-            <Input id="responsiblePerson" value={responsiblePerson} onChange={e => setResponsiblePerson(e.target.value)} placeholder="Ex: João" maxLength={60} />
+            <Label htmlFor="responsiblePerson">Responsáveis pelo repasse</Label>
+            <Input id="responsiblePerson" value={responsiblePerson} onChange={e => setResponsiblePerson(e.target.value)} placeholder="Ex: João, Maria" maxLength={120} />
+            <p className="text-xs text-muted-foreground mt-1">Separe dois responsáveis por vírgula para dividir o valor igualmente.</p>
           </div>
           <div>
             <Label htmlFor="notes">Observações</Label>
