@@ -33,6 +33,7 @@ interface DbInvoice {
   reference_month: string;
   card: string | null;
   payment_method: string | null;
+  responsible_person: string | null;
   installments: number | null;
   installment_number: number | null;
   installment_group: string | null;
@@ -72,6 +73,7 @@ function mapInvoices(invoices: DbInvoice[], payments: DbPayment[]): InvoiceWithS
       referenceMonth: invoice.reference_month,
       card: invoice.card || undefined,
       paymentMethod: invoice.payment_method || undefined,
+      responsiblePerson: invoice.responsible_person || undefined,
       installments: invoice.installments || 1,
       installmentNumber: invoice.installment_number || 1,
       installmentGroup: invoice.installment_group || undefined,
@@ -160,6 +162,7 @@ export function useAddInvoice() {
       referenceMonth: string;
       card?: string;
       paymentMethod?: string;
+      responsiblePerson?: string;
       installments?: number;
       currentInstallment?: number;
     }) => {
@@ -181,6 +184,7 @@ export function useAddInvoice() {
           reference_month: shiftMonth(data.referenceMonth, idx),
           card: data.card || null,
           payment_method: data.paymentMethod || null,
+          responsible_person: data.responsiblePerson?.trim() || null,
           installments,
           installment_number: i + 1,
           installment_group: installmentGroup,
@@ -214,6 +218,7 @@ export function useUpdateInvoice() {
       if (data.referenceMonth !== undefined) mapped.reference_month = data.referenceMonth;
       if (data.card !== undefined) mapped.card = data.card || null;
       if (data.paymentMethod !== undefined) mapped.payment_method = data.paymentMethod || null;
+      if (data.responsiblePerson !== undefined) mapped.responsible_person = data.responsiblePerson?.trim() || null;
 
       if (!isOnline()) {
         addToQueue({ type: 'update_invoice', payload: { id, data: mapped } });
@@ -238,6 +243,7 @@ export function useUpdateInvoice() {
           ...(data.referenceMonth !== undefined && { referenceMonth: data.referenceMonth }),
           ...(data.card !== undefined && { card: data.card || undefined }),
           ...(data.paymentMethod !== undefined && { paymentMethod: data.paymentMethod || undefined }),
+          ...(data.responsiblePerson !== undefined && { responsiblePerson: data.responsiblePerson?.trim() || undefined }),
         } : inv);
       });
 
