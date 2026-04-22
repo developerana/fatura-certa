@@ -13,8 +13,6 @@ interface InvoiceListProps {
   invoices: InvoiceWithStatus[];
   onPayment: (invoice: InvoiceWithStatus) => void;
   onEdit: (invoice: InvoiceWithStatus) => void;
-  filterStatus: InvoiceStatus | 'all';
-  filterCategory: InvoiceCategory | 'all';
   filterCard: string;
   filterResponsible: string;
 }
