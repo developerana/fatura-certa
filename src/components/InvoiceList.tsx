@@ -15,6 +15,7 @@ interface InvoiceListProps {
   onEdit: (invoice: InvoiceWithStatus) => void;
   filterCard: string;
   filterResponsible: string;
+  viewMode?: 'list' | 'grid';
 }
 
 function formatCurrency(value: number) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
@@ -24,7 +25,7 @@ const statusClass: Record<InvoiceStatus, string> = {
   paid: 'status-paid', partial: 'status-partial', overdue: 'status-overdue', pending: 'status-pending',
 };
 
-export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterResponsible }: InvoiceListProps) {
+export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterResponsible, viewMode = 'list' }: InvoiceListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const deleteInvoice = useDeleteInvoice();
 
@@ -52,26 +53,27 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
 
   return (
     <>
-      <div className="space-y-3">
+      <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3' : 'space-y-3'}>
         {filtered.map((inv, i) => {
           const progress = inv.totalAmount > 0 ? (inv.totalPaid / inv.totalAmount) * 100 : 0;
           const isOverdue = inv.status === 'overdue';
+          const isGrid = viewMode === 'grid';
           return (
             <div key={inv.id} className="glass-card p-4 hover:border-primary/20 transition-colors animate-fade-in" style={{ animationDelay: `${i * 50}ms` }}>
-              <div className="flex items-start justify-between gap-4">
+              <div className={isGrid ? 'flex flex-col gap-3 h-full' : 'flex items-start justify-between gap-4'}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="font-semibold text-sm truncate">{inv.description}</h3>
                     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${statusClass[inv.status]}`}>{STATUS_LABELS[inv.status]}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                  <div className={`flex items-center gap-3 text-xs text-muted-foreground mb-3 ${isGrid ? 'flex-wrap' : ''}`}>
                     <span>{CATEGORY_LABELS[inv.category]}</span>
                     <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{formatDate(inv.dueDate)}</span>
                     {inv.card && (<span className="flex items-center gap-1 text-primary"><CreditCard className="h-3 w-3" />{inv.card}</span>)}
                     {inv.responsiblePerson && (<span className="flex items-center gap-1 text-primary"><UserRound className="h-3 w-3" />{inv.responsiblePerson}</span>)}
                     {inv.paymentMethod && (<span className="text-muted-foreground">{inv.paymentMethod}</span>)}
                   </div>
-                  <div className="flex items-center gap-4 mb-2">
+                  <div className={`flex items-center gap-4 mb-2 ${isGrid ? 'flex-wrap' : ''}`}>
                     <div><span className="text-xs text-muted-foreground">Total</span><p className="font-mono text-sm font-semibold">{formatCurrency(inv.totalAmount)}</p></div>
                     <div><span className="text-xs text-muted-foreground">Pago</span><p className="font-mono text-sm font-medium text-status-paid">{formatCurrency(inv.totalPaid)}</p></div>
                     <div><span className="text-xs text-muted-foreground">Restante</span><p className={`font-mono text-sm font-medium ${isOverdue ? 'text-status-overdue' : ''}`}>{formatCurrency(inv.remainingBalance)}</p></div>
@@ -79,14 +81,16 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
                   </div>
                   <Progress value={progress} className="h-1.5" />
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {inv.status !== 'paid' && (<DropdownMenuItem onClick={() => onPayment(inv)}>Registrar Pagamento</DropdownMenuItem>)}
-                    <DropdownMenuItem onClick={() => onEdit(inv)}>Editar</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(inv.id)}>Excluir</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div className={isGrid ? 'flex justify-end' : ''}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {inv.status !== 'paid' && (<DropdownMenuItem onClick={() => onPayment(inv)}>Registrar Pagamento</DropdownMenuItem>)}
+                      <DropdownMenuItem onClick={() => onEdit(inv)}>Editar</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(inv.id)}>Excluir</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             </div>
           );

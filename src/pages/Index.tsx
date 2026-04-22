@@ -14,7 +14,7 @@ import { PayAllDialog } from '@/components/PayAllDialog';
 import { ImportInvoicesDialog } from '@/components/ImportInvoicesDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle, Upload, UserRound } from 'lucide-react';
+import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle, Upload, UserRound, LayoutGrid, List } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { getResponsibleShare, getUniqueResponsiblePeople, isResponsibleForInvoice } from '@/lib/responsible';
 
@@ -46,6 +46,7 @@ const Index = () => {
   const [paymentInvoice, setPaymentInvoice] = useState<InvoiceWithStatus | null>(null);
   const [payAllOpen, setPayAllOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
   const availableCategories = [...new Set(allInvoices.map(i => i.category))];
@@ -133,7 +134,29 @@ const Index = () => {
         )}
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <h2 className="text-base font-semibold">Lançamentos na Fatura</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold">Lançamentos na Fatura</h2>
+              <div className="flex items-center rounded-md border border-border overflow-hidden">
+                <Button
+                  variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="h-8 w-8 rounded-none"
+                  onClick={() => setViewMode('list')}
+                  title="Visualização em lista"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="h-8 w-8 rounded-none"
+                  onClick={() => setViewMode('grid')}
+                  title="Visualização em grade"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
             <FiltersBar
               referenceMonth={referenceMonth}
               onMonthChange={setReferenceMonth}
@@ -151,6 +174,7 @@ const Index = () => {
             onEdit={handleEdit}
             filterCard={filterCard}
             filterResponsible={filterResponsible}
+            viewMode={viewMode}
           />
         </div>
       </main>
