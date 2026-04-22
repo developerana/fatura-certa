@@ -57,13 +57,6 @@ const Index = () => {
     : monthInvoices.filter(i => isResponsibleForInvoice(i, filterResponsible));
   const responsibleTotal = responsibleInvoices.reduce((sum, i) => sum + getResponsibleShare(i, filterResponsible), 0);
 
-  const now = new Date();
-  const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const upcoming = allInvoices
-    .filter(i => i.status !== 'paid' && new Date(i.dueDate) >= now && new Date(i.dueDate) <= in7Days)
-    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-    .slice(0, 5);
-
   const handleEdit = (inv: InvoiceWithStatus) => {
     setEditInvoice(inv);
     setFormOpen(true);
