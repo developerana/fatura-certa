@@ -25,7 +25,7 @@ const statusClass: Record<InvoiceStatus, string> = {
   paid: 'status-paid', partial: 'status-partial', overdue: 'status-overdue', pending: 'status-pending',
 };
 
-export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterResponsible }: InvoiceListProps) {
+export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterResponsible, viewMode = 'list' }: InvoiceListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const deleteInvoice = useDeleteInvoice();
 
