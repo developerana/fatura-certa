@@ -112,27 +112,12 @@ const Index = () => {
       <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <DashboardCards referenceMonth={referenceMonth} invoices={allInvoices} />
 
-        <CardTotalCard referenceMonth={referenceMonth} invoices={allInvoices} filterCard={filterCard} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+          <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
+          <CardTotalCard referenceMonth={referenceMonth} invoices={allInvoices} filterCard={filterCard} />
+        </div>
 
         {filterResponsible !== 'all' && (
-          <div className="glass-card p-4 sm:p-5 border border-primary/30">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs sm:text-sm text-muted-foreground font-medium uppercase tracking-wider">
-                Repasse de {filterResponsible}
-              </span>
-              <UserRound className="h-4 w-4 text-primary" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-primary">
-              {responsibleTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {responsibleInvoices.length} {responsibleInvoices.length === 1 ? 'fatura pendente' : 'faturas pendentes'} no mês
-            </p>
-          </div>
-        )}
-
-        <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
-
 
 
         <div className="space-y-4">
