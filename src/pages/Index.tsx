@@ -14,7 +14,7 @@ import { PayAllDialog } from '@/components/PayAllDialog';
 import { ImportInvoicesDialog } from '@/components/ImportInvoicesDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle, Upload, UserRound } from 'lucide-react';
+import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle, Upload, UserRound, LayoutGrid, List } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { getResponsibleShare, getUniqueResponsiblePeople, isResponsibleForInvoice } from '@/lib/responsible';
 
