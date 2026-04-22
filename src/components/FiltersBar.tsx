@@ -28,15 +28,10 @@ function shiftMonth(month: string, delta: number): string {
 interface FiltersBarProps {
   referenceMonth: string;
   onMonthChange: (month: string) => void;
-  filterStatus: InvoiceStatus | 'all';
-  onStatusChange: (status: InvoiceStatus | 'all') => void;
-  filterCategory: InvoiceCategory | 'all';
-  onCategoryChange: (category: InvoiceCategory | 'all') => void;
   filterCard: string;
   onCardChange: (card: string) => void;
   filterResponsible: string;
   onResponsibleChange: (responsible: string) => void;
-  availableCategories?: InvoiceCategory[];
   availableResponsibles?: string[];
 }
 
