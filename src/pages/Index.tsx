@@ -77,8 +77,8 @@ const Index = () => {
               <Receipt className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm sm:text-lg font-bold tracking-tight truncate">Gerenciador de Faturas e Gastos</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">{formatMonthLabel(referenceMonth)}</p>
+              <h1 className="text-sm sm:text-lg font-bold tracking-tight truncate">Gerenciador</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Fatura de {formatMonthLabel(referenceMonth)}</p>
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
@@ -133,7 +133,7 @@ const Index = () => {
         )}
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <h2 className="text-base font-semibold">Faturas</h2>
+            <h2 className="text-base font-semibold">Lançamentos na Fatura</h2>
             <FiltersBar
               referenceMonth={referenceMonth}
               onMonthChange={setReferenceMonth}
