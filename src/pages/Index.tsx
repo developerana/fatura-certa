@@ -112,7 +112,10 @@ const Index = () => {
       <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <DashboardCards referenceMonth={referenceMonth} invoices={allInvoices} />
 
-        <CardTotalCard referenceMonth={referenceMonth} invoices={allInvoices} filterCard={filterCard} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+          <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
+          <CardTotalCard referenceMonth={referenceMonth} invoices={allInvoices} filterCard={filterCard} />
+        </div>
 
         {filterResponsible !== 'all' && (
           <div className="glass-card p-4 sm:p-5 border border-primary/30">
@@ -130,11 +133,6 @@ const Index = () => {
             </p>
           </div>
         )}
-
-        <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
-
-
-
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="text-base font-semibold">Faturas</h2>
