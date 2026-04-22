@@ -5,7 +5,6 @@ import { useInvoicesWithStatus } from '@/hooks/useInvoices';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { DashboardCards } from '@/components/DashboardCards';
-import { CategoryChart } from '@/components/CategoryChart';
 import { CardChart } from '@/components/CardChart';
 import { CardTotalCard } from '@/components/CardTotalCard';
 import { InvoiceList } from '@/components/InvoiceList';
@@ -139,9 +138,9 @@ const Index = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
 
-          <CategoryChart referenceMonth={referenceMonth} invoices={allInvoices} />
+          
           <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
 
           <div className="glass-card p-4 sm:p-6">
