@@ -138,36 +138,9 @@ const Index = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+        <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
 
-          
-          <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
 
-          <div className="glass-card p-4 sm:p-6">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">
-              Próximos Vencimentos
-            </h3>
-            {upcoming.length === 0 ? (
-              <p className="text-muted-foreground text-sm">Nenhum vencimento nos próximos 7 dias</p>
-            ) : (
-              <div className="space-y-2">
-                {upcoming.map(inv => (
-                  <div key={inv.id} className="flex items-center justify-between bg-secondary/30 rounded-lg px-3 py-2 text-sm">
-                    <div className="min-w-0">
-                      <p className="font-medium truncate">{inv.description}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Vence em {new Date(inv.dueDate + 'T12:00:00').toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                    <span className="font-mono text-sm font-semibold flex-shrink-0 ml-3">
-                      {inv.remainingBalance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
