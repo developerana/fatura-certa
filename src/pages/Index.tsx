@@ -39,8 +39,6 @@ const Index = () => {
   const navigate = useNavigate();
   const { data: allInvoices = [], isLoading } = useInvoicesWithStatus();
   const [referenceMonth, setReferenceMonth] = useState(getCurrentMonth());
-  const [filterStatus, setFilterStatus] = useState<InvoiceStatus | 'all'>('all');
-  const [filterCategory, setFilterCategory] = useState<InvoiceCategory | 'all'>('all');
   const [filterCard, setFilterCard] = useState('all');
   const [filterResponsible, setFilterResponsible] = useState('all');
   const [formOpen, setFormOpen] = useState(false);
@@ -139,15 +137,10 @@ const Index = () => {
             <FiltersBar
               referenceMonth={referenceMonth}
               onMonthChange={setReferenceMonth}
-              filterStatus={filterStatus}
-              onStatusChange={setFilterStatus}
-              filterCategory={filterCategory}
-              onCategoryChange={setFilterCategory}
               filterCard={filterCard}
               onCardChange={setFilterCard}
               filterResponsible={filterResponsible}
               onResponsibleChange={setFilterResponsible}
-              availableCategories={availableCategories}
               availableResponsibles={availableResponsibles}
             />
           </div>
@@ -156,8 +149,6 @@ const Index = () => {
             invoices={monthInvoices}
             onPayment={setPaymentInvoice}
             onEdit={handleEdit}
-            filterStatus={filterStatus}
-            filterCategory={filterCategory}
             filterCard={filterCard}
             filterResponsible={filterResponsible}
           />
