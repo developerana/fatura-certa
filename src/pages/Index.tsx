@@ -46,6 +46,7 @@ const Index = () => {
   const [paymentInvoice, setPaymentInvoice] = useState<InvoiceWithStatus | null>(null);
   const [payAllOpen, setPayAllOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
   const availableCategories = [...new Set(allInvoices.map(i => i.category))];
