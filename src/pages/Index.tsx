@@ -118,8 +118,21 @@ const Index = () => {
         </div>
 
         {filterResponsible !== 'all' && (
-
-
+          <div className="glass-card p-4 sm:p-5 border border-primary/30">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs sm:text-sm text-muted-foreground font-medium uppercase tracking-wider">
+                Repasse de {filterResponsible}
+              </span>
+              <UserRound className="h-4 w-4 text-primary" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-primary">
+              {responsibleTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {responsibleInvoices.length} {responsibleInvoices.length === 1 ? 'fatura pendente' : 'faturas pendentes'} no mês
+            </p>
+          </div>
+        )}
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="text-base font-semibold">Faturas</h2>
