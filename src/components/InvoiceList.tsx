@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { InvoiceWithStatus, STATUS_LABELS, CATEGORY_LABELS, InvoiceCategory, InvoiceStatus } from '@/types/invoice';
+import { InvoiceWithStatus, STATUS_LABELS, CATEGORY_LABELS } from '@/types/invoice';
 import { useDeleteInvoice } from '@/hooks/useInvoices';
 import { CalendarDays, Trash2, CreditCard, MoreHorizontal, UserRound } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -24,13 +24,11 @@ const statusClass: Record<InvoiceStatus, string> = {
   paid: 'status-paid', partial: 'status-partial', overdue: 'status-overdue', pending: 'status-pending',
 };
 
-export function InvoiceList({ invoices, onPayment, onEdit, filterStatus, filterCategory, filterCard, filterResponsible }: InvoiceListProps) {
+export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterResponsible }: InvoiceListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const deleteInvoice = useDeleteInvoice();
 
   const filtered = invoices.filter(inv => {
-    if (filterStatus !== 'all' && inv.status !== filterStatus) return false;
-    if (filterCategory !== 'all' && inv.category !== filterCategory) return false;
     if (filterCard !== 'all' && (inv.card || '') !== filterCard) return false;
     if (filterResponsible !== 'all' && !isResponsibleForInvoice(inv, filterResponsible)) return false;
     return true;
