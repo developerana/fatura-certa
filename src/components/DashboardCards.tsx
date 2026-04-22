@@ -1,4 +1,4 @@
-import { Clock, FileText, CheckCircle, Wallet, BarChart3 } from 'lucide-react';
+import { Clock, FileText, CheckCircle, Wallet } from 'lucide-react';
 import { useMonthSummary } from '@/hooks/useInvoices';
 import { InvoiceWithStatus } from '@/types/invoice';
 
