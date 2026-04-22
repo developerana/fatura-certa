@@ -140,7 +140,7 @@ const Index = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
 
-          <CategoryChart referenceMonth={referenceMonth} invoices={allInvoices} />
+          
           <CardChart referenceMonth={referenceMonth} invoices={allInvoices} />
 
           <div className="glass-card p-4 sm:p-6">
