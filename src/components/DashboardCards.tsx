@@ -30,7 +30,7 @@ export function DashboardCards({ referenceMonth, invoices }: DashboardCardsProps
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
       {cards.map((card, i) => (
         <div key={card.title} className={`${card.className} p-3 sm:p-5 animate-fade-in`} style={{ animationDelay: `${i * 80}ms` }}>
           <div className="flex items-center justify-between mb-2 sm:mb-3">
