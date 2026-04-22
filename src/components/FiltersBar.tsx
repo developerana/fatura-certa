@@ -1,4 +1,4 @@
-import { InvoiceCategory, InvoiceStatus, CATEGORY_LABELS, STATUS_LABELS, getCardOptions } from '@/types/invoice';
+import { InvoiceCategory, InvoiceStatus, getCardOptions } from '@/types/invoice';
 import {
   Select,
   SelectContent,
