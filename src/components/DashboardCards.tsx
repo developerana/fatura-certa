@@ -22,16 +22,11 @@ export function DashboardCards({ referenceMonth, invoices }: DashboardCardsProps
   const futureUnpaidCount = invoices
     .filter(i => i.referenceMonth >= referenceMonth && i.status !== 'paid').length;
 
-  const pct = summary.totalExpected > 0 ? Math.min(Math.round((summary.totalPaid / summary.totalExpected) * 100), 100) : 0;
-  const indexLabel = pct >= 80 ? 'Excelente controle' : pct >= 41 ? 'Em andamento' : 'Atenção';
-  const indexClass = pct >= 80 ? 'glass-card border-status-paid/30' : pct < 41 ? 'glass-card border-status-overdue/30' : 'glass-card';
-
   const cards = [
     { title: 'Total Previsto', value: formatCurrency(summary.totalExpected), subtitle: `${summary.invoiceCount} faturas`, icon: FileText, className: 'glass-card' },
     { title: 'Total Pago', value: formatCurrency(summary.totalPaid), subtitle: `${summary.paidCount} pagas`, icon: CheckCircle, className: 'glass-card border-status-paid/30' },
     { title: 'Saldo Pendente', value: formatCurrency(summary.totalPending), subtitle: 'a pagar', icon: Clock, className: 'glass-card' },
     { title: 'Dívida Total', value: formatCurrency(totalFutureDebt), subtitle: `${futureUnpaidCount} faturas em aberto`, icon: Wallet, className: 'glass-card border-primary/20' },
-    { title: 'Índice de Controle', value: `${pct}%`, subtitle: indexLabel, icon: BarChart3, className: indexClass },
   ];
 
   return (
