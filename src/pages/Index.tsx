@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { DashboardCards } from '@/components/DashboardCards';
 import { CardChart } from '@/components/CardChart';
+import { CardTotalCard } from '@/components/CardTotalCard';
 import { InvoiceList } from '@/components/InvoiceList';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { PaymentDialog } from '@/components/PaymentDialog';
