@@ -15,6 +15,7 @@ interface InvoiceListProps {
   onEdit: (invoice: InvoiceWithStatus) => void;
   filterCard: string;
   filterResponsible: string;
+  viewMode?: 'list' | 'grid';
 }
 
 function formatCurrency(value: number) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
