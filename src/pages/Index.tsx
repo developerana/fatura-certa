@@ -134,7 +134,29 @@ const Index = () => {
         )}
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <h2 className="text-base font-semibold">Lançamentos na Fatura</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold">Lançamentos na Fatura</h2>
+              <div className="flex items-center rounded-md border border-border overflow-hidden">
+                <Button
+                  variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="h-8 w-8 rounded-none"
+                  onClick={() => setViewMode('list')}
+                  title="Visualização em lista"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="h-8 w-8 rounded-none"
+                  onClick={() => setViewMode('grid')}
+                  title="Visualização em grade"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
             <FiltersBar
               referenceMonth={referenceMonth}
               onMonthChange={setReferenceMonth}
@@ -152,6 +174,7 @@ const Index = () => {
             onEdit={handleEdit}
             filterCard={filterCard}
             filterResponsible={filterResponsible}
+            viewMode={viewMode}
           />
         </div>
       </main>
