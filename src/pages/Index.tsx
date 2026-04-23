@@ -11,10 +11,9 @@ import { InvoiceList } from '@/components/InvoiceList';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { PaymentDialog } from '@/components/PaymentDialog';
 import { PayAllDialog } from '@/components/PayAllDialog';
-import { ImportInvoicesDialog } from '@/components/ImportInvoicesDialog';
 import { FiltersBar } from '@/components/FiltersBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle, Upload, UserRound, LayoutGrid, List } from 'lucide-react';
+import { Plus, Receipt, LogOut, CheckCircle2, Users, UserCircle, UserRound, LayoutGrid, List } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { getResponsibleShare, getUniqueResponsiblePeople, isResponsibleForInvoice } from '@/lib/responsible';
 
@@ -45,7 +44,6 @@ const Index = () => {
   const [editInvoice, setEditInvoice] = useState<InvoiceWithStatus | null>(null);
   const [paymentInvoice, setPaymentInvoice] = useState<InvoiceWithStatus | null>(null);
   const [payAllOpen, setPayAllOpen] = useState(false);
-  const [importOpen, setImportOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
@@ -91,9 +89,6 @@ const Index = () => {
             )}
             <Button onClick={() => setPayAllOpen(true)} size="sm" variant="outline" className="text-xs sm:text-sm px-2 sm:px-3">
               <CheckCircle2 className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Pagar Mês</span>
-            </Button>
-            <Button onClick={() => setImportOpen(true)} size="sm" variant="outline" className="text-xs sm:text-sm px-2 sm:px-3">
-              <Upload className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Importar</span>
             </Button>
             <Button onClick={() => { setEditInvoice(null); setFormOpen(true); }} size="sm" className="text-xs sm:text-sm px-2 sm:px-3">
               <Plus className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Nova Fatura</span>
@@ -197,11 +192,6 @@ const Index = () => {
         onOpenChange={setPayAllOpen}
         invoices={allInvoices}
         referenceMonth={referenceMonth}
-      />
-
-      <ImportInvoicesDialog
-        open={importOpen}
-        onOpenChange={setImportOpen}
       />
     </div>
   );
