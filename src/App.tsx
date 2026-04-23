@@ -12,6 +12,7 @@ import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 import NotFound from "./pages/NotFound";
+import ThemePreview from "./pages/ThemePreview";
 import InstallPWA from "./components/InstallPWA";
 
 const queryClient = new QueryClient({
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
+              <Route path="/theme-preview" element={<ThemePreview />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
