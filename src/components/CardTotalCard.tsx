@@ -38,7 +38,7 @@ export function CardTotalCard({ referenceMonth, invoices, filterCard }: CardTota
   const remaining = total - paid;
   const count = filtered.length;
 
-  const title = targetCard ? `Fatura ${targetCard}` : 'FATURA TOTAL (POR CARTÃO)';
+  const title = targetCard ? `Fatura ${targetCard}` : 'FATURA TOTAL (CARTÕES)';
   const accent = targetCard ? getCardColor(targetCard) : 'hsl(var(--primary))';
 
   return (
