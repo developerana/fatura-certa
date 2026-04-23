@@ -91,7 +91,7 @@ const Index = () => {
               <CheckCircle2 className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Pagar Mês</span>
             </Button>
             <Button onClick={() => { setEditInvoice(null); setFormOpen(true); }} size="sm" className="text-xs sm:text-sm px-2 sm:px-3">
-              <Plus className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Nova Fatura</span>
+              <Plus className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Novo Lançamento</span>
             </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} title="Perfil">
               <UserCircle className="h-4 w-4" />
@@ -130,7 +130,7 @@ const Index = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-semibold whitespace-nowrap">Lançamentos na Fatura</h2>
+              <h2 className="text-base font-semibold whitespace-nowrap">Lançamentos</h2>
               <div className="flex items-center rounded-md border border-border overflow-hidden">
                 <Button
                   variant={viewMode === 'list' ? 'secondary' : 'ghost'}
