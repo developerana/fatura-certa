@@ -163,31 +163,99 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
             );
           }
 
+          const statusBar =
+            inv.status === 'paid' ? 'bg-[hsl(var(--status-paid))]' :
+            inv.status === 'partial' ? 'bg-[hsl(var(--status-partial))]' :
+            inv.status === 'overdue' ? 'bg-[hsl(var(--status-overdue))]' :
+            'bg-[hsl(var(--status-pending))]';
+
           return (
-            <div key={inv.id} className="glass-card p-4 hover:border-primary/20 transition-colors animate-fade-in" style={{ animationDelay: `${i * 50}ms` }}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <h3 className="font-semibold text-sm truncate">{inv.description}</h3>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${statusClass[inv.status]}`}>{STATUS_LABELS[inv.status]}</span>
+            <div
+              key={inv.id}
+              className="group relative glass-card p-4 sm:p-5 pl-5 sm:pl-6 hover:border-primary/40 hover:shadow-md transition-all duration-200 animate-fade-in overflow-hidden"
+              style={{ animationDelay: `${i * 40}ms` }}
+            >
+              <div className={`absolute top-0 left-0 bottom-0 w-1 ${statusBar}`} />
+
+              <div className="flex items-stretch justify-between gap-4">
+                <div className="flex-1 min-w-0 flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <h3 className="font-semibold text-sm sm:text-base truncate">{inv.description}</h3>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border uppercase tracking-wide ${statusClass[inv.status]}`}>
+                          {STATUS_LABELS[inv.status]}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-x-3 gap-y-1 text-xs text-muted-foreground flex-wrap">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/60 font-medium">
+                          {CATEGORY_LABELS[inv.category]}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <CalendarDays className="h-3 w-3" />
+                          {formatDate(inv.dueDate)}
+                        </span>
+                        {inv.card && (
+                          <span className="inline-flex items-center gap-1 text-primary font-medium">
+                            <CreditCard className="h-3 w-3" />{inv.card}
+                          </span>
+                        )}
+                        {inv.responsiblePerson && (
+                          <span className="inline-flex items-center gap-1 text-primary font-medium">
+                            <UserRound className="h-3 w-3" />{inv.responsiblePerson}
+                          </span>
+                        )}
+                        {inv.paymentMethod && (
+                          <span className="text-muted-foreground/80">· {inv.paymentMethod}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="text-right hidden sm:block flex-shrink-0">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-0.5">Total</p>
+                      <p className="font-mono text-lg font-bold tracking-tight leading-none">{formatCurrency(inv.totalAmount)}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
-                    <span>{CATEGORY_LABELS[inv.category]}</span>
-                    <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{formatDate(inv.dueDate)}</span>
-                    {inv.card && (<span className="flex items-center gap-1 text-primary"><CreditCard className="h-3 w-3" />{inv.card}</span>)}
-                    {inv.responsiblePerson && (<span className="flex items-center gap-1 text-primary"><UserRound className="h-3 w-3" />{inv.responsiblePerson}</span>)}
-                    {inv.paymentMethod && (<span className="text-muted-foreground">{inv.paymentMethod}</span>)}
+
+                  <div className="sm:hidden flex items-baseline gap-2">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Total</span>
+                    <span className="font-mono text-base font-bold">{formatCurrency(inv.totalAmount)}</span>
                   </div>
-                  <div className="flex items-center gap-4 mb-2">
-                    <div><span className="text-xs text-muted-foreground">Total</span><p className="font-mono text-sm font-semibold">{formatCurrency(inv.totalAmount)}</p></div>
-                    <div><span className="text-xs text-muted-foreground">Pago</span><p className="font-mono text-sm font-medium text-status-paid">{formatCurrency(inv.totalPaid)}</p></div>
-                    <div><span className="text-xs text-muted-foreground">Restante</span><p className={`font-mono text-sm font-medium ${isOverdue ? 'text-status-overdue' : ''}`}>{formatCurrency(inv.remainingBalance)}</p></div>
-                    {filterResponsible !== 'all' && (<div><span className="text-xs text-muted-foreground">Repasse</span><p className="font-mono text-sm font-medium text-primary">{formatCurrency(getResponsibleShare(inv, filterResponsible))}</p></div>)}
+
+                  <div>
+                    <div className="flex items-center justify-between gap-3 mb-1.5 text-xs flex-wrap">
+                      <div className="flex items-center gap-x-3 gap-y-1 flex-wrap">
+                        <span className="inline-flex items-baseline gap-1">
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Pago</span>
+                          <span className="font-mono font-semibold text-[hsl(var(--status-paid))]">{formatCurrency(inv.totalPaid)}</span>
+                        </span>
+                        <span className="text-muted-foreground/40">·</span>
+                        <span className="inline-flex items-baseline gap-1">
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Restante</span>
+                          <span className={`font-mono font-semibold ${isOverdue ? 'text-[hsl(var(--status-overdue))]' : ''}`}>{formatCurrency(inv.remainingBalance)}</span>
+                        </span>
+                        {filterResponsible !== 'all' && (
+                          <>
+                            <span className="text-muted-foreground/40">·</span>
+                            <span className="inline-flex items-baseline gap-1">
+                              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Repasse</span>
+                              <span className="font-mono font-semibold text-primary">{formatCurrency(getResponsibleShare(inv, filterResponsible))}</span>
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      <span className="font-mono text-[11px] font-semibold text-muted-foreground flex-shrink-0">{Math.round(progress)}%</span>
+                    </div>
+                    <Progress value={progress} className="h-1.5" />
                   </div>
-                  <Progress value={progress} className="h-1.5" />
                 </div>
+
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {inv.status !== 'paid' && (<DropdownMenuItem onClick={() => onPayment(inv)}>Registrar Pagamento</DropdownMenuItem>)}
                     <DropdownMenuItem onClick={() => onEdit(inv)}>Editar</DropdownMenuItem>
