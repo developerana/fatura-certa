@@ -45,8 +45,8 @@ export function FiltersBar({
   availableResponsibles = [],
 }: FiltersBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-      <div className="flex items-center gap-1 w-full sm:w-auto justify-center sm:justify-start">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto justify-end">
+      <div className="flex items-center gap-1 order-1">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMonthChange(shiftMonth(referenceMonth, -1))}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -57,7 +57,7 @@ export function FiltersBar({
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
-      <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
+      <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto order-2">
         <Select value={filterCard} onValueChange={onCardChange}>
           <SelectTrigger className="h-9 text-xs sm:text-sm sm:w-40">
             <SelectValue placeholder="Cartão" />
