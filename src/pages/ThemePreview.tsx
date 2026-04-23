@@ -101,19 +101,19 @@ function PreviewPanel({ mode }: { mode: 'light' | 'dark' }) {
 
 export default function ThemePreview() {
   return (
-    <div className="min-h-screen bg-neutral-200 p-6">
+    <div className="min-h-screen bg-muted p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold mb-1 text-neutral-900">Prévia de Tema</h1>
-        <p className="text-sm text-neutral-600 mb-6">
+        <h1 className="text-2xl font-bold mb-1 text-foreground">Prévia de Tema</h1>
+        <p className="text-sm text-muted-foreground mb-6">
           Comparação lado a lado — fundo escuro fixado em <code className="font-mono">#000000</code>.
         </p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
-            <p className="text-sm font-semibold mb-2 text-neutral-700">☀️ Claro</p>
+            <p className="text-sm font-semibold mb-2 text-foreground">☀️ Claro</p>
             <PreviewPanel mode="light" />
           </div>
           <div>
-            <p className="text-sm font-semibold mb-2 text-neutral-700">🌙 Escuro (#000000)</p>
+            <p className="text-sm font-semibold mb-2 text-foreground">🌙 Escuro (#000000)</p>
             <PreviewPanel mode="dark" />
           </div>
         </div>
