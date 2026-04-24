@@ -259,7 +259,7 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
 
               {/* Mobile amount row */}
               <div className="md:hidden flex items-center justify-between gap-2 px-4 sm:px-5 pl-5 sm:pl-6 pb-3 -mt-1">
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide bg-[hsl(var(--${statusToken}))]/10 text-[hsl(var(--${statusToken}))]`}>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide ${statusStyles.soft} ${statusStyles.text}`}>
                   {STATUS_LABELS[inv.status]}
                 </span>
                 <p className="font-mono text-base font-bold tracking-tight">{formatCurrency(inv.totalAmount)}</p>
