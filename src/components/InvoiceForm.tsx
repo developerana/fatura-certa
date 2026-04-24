@@ -80,7 +80,6 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
 
     const data = {
       description: description.trim(),
-      category,
       totalAmount: amount,
       dueDate,
       referenceMonth,
