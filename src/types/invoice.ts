@@ -61,7 +61,6 @@ export function addPaymentMethodOption(method: string): string[] {
 export interface Invoice {
   id: string;
   description: string;
-  category: InvoiceCategory;
   totalAmount: number;
   dueDate: string;
   referenceMonth: string;
