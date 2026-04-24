@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Invoice, InvoiceCategory, CATEGORY_LABELS, getCardOptions, addCardOption, getPaymentMethodOptions, addPaymentMethodOption } from '@/types/invoice';
+import { Invoice, getCardOptions, addCardOption, getPaymentMethodOptions, addPaymentMethodOption } from '@/types/invoice';
 import { useAddInvoice, useUpdateInvoice, useInvoicesWithStatus } from '@/hooks/useInvoices';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,6 @@ interface InvoiceFormProps {
 
 export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: InvoiceFormProps) {
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<InvoiceCategory>('outros');
   const [amountCents, setAmountCents] = useState(0);
   const [dueDate, setDueDate] = useState('');
   const [referenceMonth, setReferenceMonth] = useState(defaultMonth);
@@ -52,7 +51,6 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
     if (open) {
       if (editInvoice) {
         setDescription(editInvoice.description);
-        setCategory(editInvoice.category);
         setAmountCents(realToCents(editInvoice.totalAmount));
         setDueDate(editInvoice.dueDate);
         setReferenceMonth(editInvoice.referenceMonth);
@@ -61,7 +59,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
         setResponsiblePerson(editInvoice.responsiblePerson || '');
         setNotes(editInvoice.notes || '');
       } else {
-        setDescription(''); setCategory('outros'); setAmountCents(0);
+        setDescription(''); setAmountCents(0);
         setDueDate(suggestedDueDate);
         setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setResponsiblePerson(''); setNotes(''); setInstallments('1'); setCurrentInstallment('1');
       }
@@ -82,7 +80,6 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
 
     const data = {
       description: description.trim(),
-      category,
       totalAmount: amount,
       dueDate,
       referenceMonth,
@@ -129,20 +126,9 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
             <Label htmlFor="description">Descrição *</Label>
             <Input id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Ex: Conta de luz" maxLength={100} required />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Categoria *</Label>
-              <Select value={category} onValueChange={(v) => setCategory(v as InvoiceCategory)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (<SelectItem key={key} value={key}>{label}</SelectItem>))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Valor Total *</Label>
-              <CurrencyInput value={amountCents} onValueChange={setAmountCents} />
-            </div>
+          <div>
+            <Label>Valor Total *</Label>
+            <CurrencyInput value={amountCents} onValueChange={setAmountCents} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

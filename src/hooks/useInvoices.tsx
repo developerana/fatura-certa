@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { InvoiceWithStatus, InvoiceStatus, InvoiceCategory } from '@/types/invoice';
+import { InvoiceWithStatus, InvoiceStatus } from '@/types/invoice';
 import { addToQueue, isOnline } from '@/lib/offlineQueue';
 
 // ─── Local cache helpers ───
@@ -27,7 +27,6 @@ interface DbInvoice {
   id: string;
   user_id: string;
   description: string;
-  category: string;
   total_amount: number;
   due_date: string;
   reference_month: string;
@@ -67,7 +66,6 @@ function mapInvoices(invoices: DbInvoice[], payments: DbPayment[]): InvoiceWithS
     return {
       id: invoice.id,
       description: invoice.description,
-      category: invoice.category as InvoiceCategory,
       totalAmount: Number(invoice.total_amount),
       dueDate: invoice.due_date,
       referenceMonth: invoice.reference_month,
@@ -160,7 +158,6 @@ export function useAddInvoice() {
   return useMutation({
     mutationFn: async (data: {
       description: string;
-      category: string;
       totalAmount: number;
       dueDate: string;
       referenceMonth: string;
@@ -180,7 +177,6 @@ export function useAddInvoice() {
         const i = startFrom - 1 + idx;
         return {
           description: installments > 1 ? `${data.description} (${i + 1}/${installments})` : data.description,
-          category: data.category,
           total_amount: i === installments - 1
             ? Math.round((data.totalAmount - perInstallment * (installments - 1)) * 100) / 100
             : perInstallment,
@@ -226,7 +222,7 @@ export function useUpdateInvoice() {
     }) => {
       const mapped: Record<string, any> = {};
       if (data.description !== undefined) mapped.description = data.description;
-      if (data.category !== undefined) mapped.category = data.category;
+      
       if (data.totalAmount !== undefined) mapped.total_amount = data.totalAmount;
       if (data.dueDate !== undefined) mapped.due_date = data.dueDate;
       if (data.referenceMonth !== undefined) mapped.reference_month = data.referenceMonth;
@@ -272,7 +268,7 @@ export function useUpdateInvoice() {
           return {
             ...inv,
             ...(isCurrent && data.description !== undefined && { description: data.description }),
-            ...(isCurrent && data.category !== undefined && { category: data.category }),
+            
             ...(isCurrent && data.totalAmount !== undefined && { totalAmount: data.totalAmount, remainingBalance: data.totalAmount - inv.totalPaid }),
             ...(isCurrent && data.dueDate !== undefined && { dueDate: data.dueDate }),
             ...(isCurrent && data.referenceMonth !== undefined && { referenceMonth: data.referenceMonth }),
@@ -496,12 +492,6 @@ export function useMonthSummary(referenceMonth: string, invoices?: InvoiceWithSt
   return { totalExpected, totalPaid, totalPending, overdueCount, paidCount, invoiceCount: filtered.length };
 }
 
-export function useCategoryBreakdown(referenceMonth: string, invoices?: InvoiceWithStatus[]) {
-  const filtered = (invoices || []).filter(i => i.referenceMonth === referenceMonth);
-  const breakdown: Record<string, number> = {};
-  filtered.forEach(i => { breakdown[i.category] = (breakdown[i.category] || 0) + i.totalAmount; });
-  return Object.entries(breakdown).map(([category, value]) => ({ category, value }));
-}
 
 export function useCardBreakdown(referenceMonth: string, invoices?: InvoiceWithStatus[]) {
   const filtered = (invoices || []).filter(i => i.referenceMonth === referenceMonth && i.card);

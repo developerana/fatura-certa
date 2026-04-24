@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { InvoiceWithStatus, STATUS_LABELS, CATEGORY_LABELS, InvoiceStatus } from '@/types/invoice';
+import { InvoiceWithStatus, STATUS_LABELS, InvoiceStatus } from '@/types/invoice';
 import { useDeleteInvoice } from '@/hooks/useInvoices';
 import { CalendarDays, Trash2, CreditCard, MoreHorizontal, UserRound } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -96,10 +96,9 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
                   </DropdownMenu>
                 </div>
 
-                {/* Title + category */}
+                {/* Title */}
                 <div className="mb-4">
                   <h3 className="font-semibold text-base leading-tight line-clamp-2 mb-1">{inv.description}</h3>
-                  <p className="text-xs text-muted-foreground">{CATEGORY_LABELS[inv.category]}</p>
                 </div>
 
                 {/* Big amount */}
@@ -202,9 +201,6 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
                     <h3 className="font-semibold text-sm sm:text-base truncate">{inv.description}</h3>
                   </div>
                   <div className="flex items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground flex-wrap">
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-muted text-foreground/70 font-medium text-[11px]">
-                      {CATEGORY_LABELS[inv.category]}
-                    </span>
                     <span className="inline-flex items-center gap-1 text-[11px]">
                       <CalendarDays className="h-3 w-3" />
                       {formatDate(inv.dueDate)}

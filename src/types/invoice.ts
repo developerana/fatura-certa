@@ -1,80 +1,5 @@
 export type InvoiceStatus = 'pending' | 'paid' | 'partial' | 'overdue';
 
-export type InvoiceCategory = 
-  | 'aluguel' 
-  | 'cartao' 
-  | 'energia' 
-  | 'internet' 
-  | 'agua' 
-  | 'telefone' 
-  | 'educacao' 
-  | 'saude' 
-  | 'transporte' 
-  | 'alimentacao' 
-  | 'supermercado'
-  | 'streaming'
-  | 'seguro'
-  | 'combustivel'
-  | 'estacionamento'
-  | 'academia'
-  | 'pet'
-  | 'vestuario'
-  | 'lazer'
-  | 'assinatura'
-  | 'condominio'
-  | 'iptu'
-  | 'ipva'
-  | 'impostos'
-  | 'manutencao'
-  | 'emprestimo'
-  | 'investimento'
-  | 'doacao'
-  | 'viagem'
-  | 'beleza'
-  | 'farmacia'
-  | 'delivery'
-  | 'gas'
-  | 'setup'
-  | 'outros';
-
-export const CATEGORY_LABELS: Record<InvoiceCategory, string> = {
-  aluguel: 'Aluguel',
-  condominio: 'Condomínio',
-  cartao: 'Cartão de Crédito',
-  energia: 'Energia',
-  agua: 'Água',
-  gas: 'Gás',
-  internet: 'Internet',
-  telefone: 'Telefone',
-  streaming: 'Streaming',
-  assinatura: 'Assinatura',
-  supermercado: 'Supermercado',
-  delivery: 'Delivery',
-  alimentacao: 'Alimentação',
-  educacao: 'Educação',
-  saude: 'Saúde',
-  farmacia: 'Farmácia',
-  academia: 'Academia',
-  beleza: 'Beleza',
-  transporte: 'Transporte',
-  combustivel: 'Combustível',
-  estacionamento: 'Estacionamento',
-  seguro: 'Seguro',
-  iptu: 'IPTU',
-  ipva: 'IPVA',
-  impostos: 'Impostos',
-  emprestimo: 'Empréstimo',
-  investimento: 'Investimento',
-  manutencao: 'Manutenção',
-  vestuario: 'Vestuário',
-  lazer: 'Lazer',
-  viagem: 'Viagem',
-  pet: 'Pet',
-  doacao: 'Doação',
-  setup: 'Setup',
-  outros: 'Outros',
-};
-
 export const STATUS_LABELS: Record<InvoiceStatus, string> = {
   pending: 'Pendente',
   paid: 'Pago',
@@ -136,7 +61,6 @@ export function addPaymentMethodOption(method: string): string[] {
 export interface Invoice {
   id: string;
   description: string;
-  category: InvoiceCategory;
   totalAmount: number;
   dueDate: string;
   referenceMonth: string;

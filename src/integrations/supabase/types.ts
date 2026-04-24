@@ -17,7 +17,6 @@ export type Database = {
       invoices: {
         Row: {
           card: string | null
-          category: string
           created_at: string
           description: string
           due_date: string
@@ -33,7 +32,6 @@ export type Database = {
         }
         Insert: {
           card?: string | null
-          category: string
           created_at?: string
           description: string
           due_date: string
@@ -49,7 +47,6 @@ export type Database = {
         }
         Update: {
           card?: string | null
-          category?: string
           created_at?: string
           description?: string
           due_date?: string
