@@ -66,7 +66,6 @@ function mapInvoices(invoices: DbInvoice[], payments: DbPayment[]): InvoiceWithS
     return {
       id: invoice.id,
       description: invoice.description,
-      category: invoice.category as InvoiceCategory,
       totalAmount: Number(invoice.total_amount),
       dueDate: invoice.due_date,
       referenceMonth: invoice.reference_month,
