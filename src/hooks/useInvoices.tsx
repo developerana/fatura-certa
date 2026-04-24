@@ -222,7 +222,7 @@ export function useUpdateInvoice() {
     }) => {
       const mapped: Record<string, any> = {};
       if (data.description !== undefined) mapped.description = data.description;
-      if (data.category !== undefined) mapped.category = data.category;
+      
       if (data.totalAmount !== undefined) mapped.total_amount = data.totalAmount;
       if (data.dueDate !== undefined) mapped.due_date = data.dueDate;
       if (data.referenceMonth !== undefined) mapped.reference_month = data.referenceMonth;
