@@ -163,11 +163,12 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
             );
           }
 
-          const statusToken =
-            inv.status === 'paid' ? 'status-paid' :
-            inv.status === 'partial' ? 'status-partial' :
-            inv.status === 'overdue' ? 'status-overdue' :
-            'status-pending';
+          const statusStyles = {
+            paid: { bar: 'bg-[hsl(var(--status-paid))]', soft: 'bg-[hsl(var(--status-paid))]/10', text: 'text-[hsl(var(--status-paid))]', border: 'border-[hsl(var(--status-paid))]/20' },
+            partial: { bar: 'bg-[hsl(var(--status-partial))]', soft: 'bg-[hsl(var(--status-partial))]/10', text: 'text-[hsl(var(--status-partial))]', border: 'border-[hsl(var(--status-partial))]/20' },
+            overdue: { bar: 'bg-[hsl(var(--status-overdue))]', soft: 'bg-[hsl(var(--status-overdue))]/10', text: 'text-[hsl(var(--status-overdue))]', border: 'border-[hsl(var(--status-overdue))]/20' },
+            pending: { bar: 'bg-[hsl(var(--status-pending))]', soft: 'bg-[hsl(var(--status-pending))]/10', text: 'text-[hsl(var(--status-pending))]', border: 'border-[hsl(var(--status-pending))]/20' },
+          }[inv.status];
 
           const initials = inv.description
             .split(' ')
