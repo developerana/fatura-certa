@@ -59,7 +59,7 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
         setResponsiblePerson(editInvoice.responsiblePerson || '');
         setNotes(editInvoice.notes || '');
       } else {
-        setDescription(''); setCategory('outros'); setAmountCents(0);
+        setDescription(''); setAmountCents(0);
         setDueDate(suggestedDueDate);
         setReferenceMonth(defaultMonth); setCard(''); setPaymentMethod(''); setResponsiblePerson(''); setNotes(''); setInstallments('1'); setCurrentInstallment('1');
       }
