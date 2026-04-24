@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { CurrencyInput, centsToReal, realToCents } from '@/components/CurrencyInput';
 import { toast } from 'sonner';
+import { ResponsibleSelect } from './ResponsibleSelect';
 
 interface InvoiceFormProps {
   open: boolean;
