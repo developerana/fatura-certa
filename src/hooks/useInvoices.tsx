@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { InvoiceWithStatus, InvoiceStatus, InvoiceCategory } from '@/types/invoice';
+import { InvoiceWithStatus, InvoiceStatus } from '@/types/invoice';
 import { addToQueue, isOnline } from '@/lib/offlineQueue';
 
 // ─── Local cache helpers ───
