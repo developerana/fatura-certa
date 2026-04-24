@@ -201,9 +201,6 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
                     <h3 className="font-semibold text-sm sm:text-base truncate">{inv.description}</h3>
                   </div>
                   <div className="flex items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground flex-wrap">
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-muted text-foreground/70 font-medium text-[11px]">
-                      {CATEGORY_LABELS[inv.category]}
-                    </span>
                     <span className="inline-flex items-center gap-1 text-[11px]">
                       <CalendarDays className="h-3 w-3" />
                       {formatDate(inv.dueDate)}
