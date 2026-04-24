@@ -126,20 +126,9 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
             <Label htmlFor="description">Descrição *</Label>
             <Input id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Ex: Conta de luz" maxLength={100} required />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Categoria *</Label>
-              <Select value={category} onValueChange={(v) => setCategory(v as InvoiceCategory)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (<SelectItem key={key} value={key}>{label}</SelectItem>))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Valor Total *</Label>
-              <CurrencyInput value={amountCents} onValueChange={setAmountCents} />
-            </div>
+          <div>
+            <Label>Valor Total *</Label>
+            <CurrencyInput value={amountCents} onValueChange={setAmountCents} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
