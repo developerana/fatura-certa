@@ -47,7 +47,7 @@ const Index = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const monthInvoices = allInvoices.filter(i => i.referenceMonth === referenceMonth);
-  const availableCategories = [...new Set(allInvoices.map(i => i.category))];
+  
   const availableResponsibles = getUniqueResponsiblePeople(allInvoices);
   const responsibleInvoices = filterResponsible === 'all'
     ? []
