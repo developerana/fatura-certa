@@ -138,19 +138,6 @@ export function getMonthSummary(referenceMonth: string) {
   return { totalExpected, totalPaid, totalPending, overdueCount, paidCount, invoiceCount: invoices.length };
 }
 
-export function getCategoryBreakdown(referenceMonth: string) {
-  const invoices = getInvoicesWithStatus().filter(i => i.referenceMonth === referenceMonth);
-  
-  const breakdown: Record<string, number> = {};
-  invoices.forEach(i => {
-    breakdown[i.category] = (breakdown[i.category] || 0) + i.totalAmount;
-  });
-  
-  return Object.entries(breakdown).map(([category, value]) => ({
-    category,
-    value,
-  }));
-}
 
 export function getCardBreakdown(referenceMonth: string) {
   const invoices = getInvoicesWithStatus().filter(i => i.referenceMonth === referenceMonth && i.card);
