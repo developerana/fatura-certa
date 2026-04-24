@@ -185,7 +185,7 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
               style={{ animationDelay: `${i * 30}ms` }}
             >
               {/* Status accent bar */}
-              <div className={`absolute top-0 left-0 bottom-0 w-[3px] bg-[hsl(var(--${statusToken}))]`} />
+              <div className={`absolute top-0 left-0 bottom-0 w-[3px] ${statusStyles.bar}`} />
 
               <div className="flex items-center gap-4 p-4 sm:p-5 pl-5 sm:pl-6">
                 {/* Avatar circle */}
