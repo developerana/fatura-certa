@@ -96,10 +96,9 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
                   </DropdownMenu>
                 </div>
 
-                {/* Title + category */}
+                {/* Title */}
                 <div className="mb-4">
                   <h3 className="font-semibold text-base leading-tight line-clamp-2 mb-1">{inv.description}</h3>
-                  <p className="text-xs text-muted-foreground">{CATEGORY_LABELS[inv.category]}</p>
                 </div>
 
                 {/* Big amount */}
