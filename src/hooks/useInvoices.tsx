@@ -27,7 +27,6 @@ interface DbInvoice {
   id: string;
   user_id: string;
   description: string;
-  category: string;
   total_amount: number;
   due_date: string;
   reference_month: string;
