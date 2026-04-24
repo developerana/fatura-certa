@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Invoice, InvoiceCategory, CATEGORY_LABELS, getCardOptions, addCardOption, getPaymentMethodOptions, addPaymentMethodOption } from '@/types/invoice';
+import { Invoice, getCardOptions, addCardOption, getPaymentMethodOptions, addPaymentMethodOption } from '@/types/invoice';
 import { useAddInvoice, useUpdateInvoice, useInvoicesWithStatus } from '@/hooks/useInvoices';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
