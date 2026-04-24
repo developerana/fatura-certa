@@ -177,7 +177,6 @@ export function useAddInvoice() {
         const i = startFrom - 1 + idx;
         return {
           description: installments > 1 ? `${data.description} (${i + 1}/${installments})` : data.description,
-          category: data.category,
           total_amount: i === installments - 1
             ? Math.round((data.totalAmount - perInstallment * (installments - 1)) * 100) / 100
             : perInstallment,
