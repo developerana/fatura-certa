@@ -20,7 +20,6 @@ interface InvoiceFormProps {
 
 export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: InvoiceFormProps) {
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<InvoiceCategory>('outros');
   const [amountCents, setAmountCents] = useState(0);
   const [dueDate, setDueDate] = useState('');
   const [referenceMonth, setReferenceMonth] = useState(defaultMonth);
