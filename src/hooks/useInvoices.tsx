@@ -158,7 +158,6 @@ export function useAddInvoice() {
   return useMutation({
     mutationFn: async (data: {
       description: string;
-      category: string;
       totalAmount: number;
       dueDate: string;
       referenceMonth: string;
