@@ -51,7 +51,6 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
     if (open) {
       if (editInvoice) {
         setDescription(editInvoice.description);
-        setCategory(editInvoice.category);
         setAmountCents(realToCents(editInvoice.totalAmount));
         setDueDate(editInvoice.dueDate);
         setReferenceMonth(editInvoice.referenceMonth);
