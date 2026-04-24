@@ -224,7 +224,7 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
 
                 {/* Right side: amount + status (desktop) */}
                 <div className="hidden md:flex flex-col items-end gap-1 flex-shrink-0">
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide bg-[hsl(var(--${statusToken}))]/10 text-[hsl(var(--${statusToken}))]`}>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide ${statusStyles.soft} ${statusStyles.text}`}>
                     {STATUS_LABELS[inv.status]}
                   </span>
                   <p className="font-mono text-base sm:text-lg font-bold tracking-tight leading-none">
