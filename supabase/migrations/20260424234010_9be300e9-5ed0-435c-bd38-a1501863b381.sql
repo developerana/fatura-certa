@@ -1,0 +1,1 @@
+ALTER TABLE public.invoices DROP COLUMN IF EXISTS category;
