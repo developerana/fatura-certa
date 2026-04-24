@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { CurrencyInput, centsToReal, realToCents } from '@/components/CurrencyInput';
 import { toast } from 'sonner';
+import { ResponsibleSelect } from './ResponsibleSelect';
 
 interface InvoiceFormProps {
   open: boolean;
@@ -235,8 +236,8 @@ export function InvoiceForm({ open, onOpenChange, editInvoice, defaultMonth }: I
           </div>
           <div>
             <Label htmlFor="responsiblePerson">Responsáveis pelo repasse</Label>
-            <Input id="responsiblePerson" value={responsiblePerson} onChange={e => setResponsiblePerson(e.target.value)} placeholder="Ex: João, Maria" maxLength={120} />
-            <p className="text-xs text-muted-foreground mt-1">Separe dois responsáveis por vírgula para dividir o valor igualmente.</p>
+            <ResponsibleSelect value={responsiblePerson} onChange={setResponsiblePerson} />
+            <p className="text-xs text-muted-foreground mt-1">Selecione um ou mais. Com dois, o valor é dividido igualmente.</p>
           </div>
           <div>
             <Label htmlFor="notes">Observações</Label>
