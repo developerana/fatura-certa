@@ -190,10 +190,10 @@ export function InvoiceList({ invoices, onPayment, onEdit, filterCard, filterRes
               <div className="flex items-center gap-4 p-4 sm:p-5 pl-5 sm:pl-6">
                 {/* Avatar circle */}
                 <div className="relative flex-shrink-0">
-                  <div className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full flex items-center justify-center font-semibold text-sm bg-[hsl(var(--${statusToken}))]/10 text-[hsl(var(--${statusToken}))] border border-[hsl(var(--${statusToken}))]/20`}>
+                  <div className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full flex items-center justify-center font-semibold text-sm ${statusStyles.soft} ${statusStyles.text} border ${statusStyles.border}`}>
                     {initials || '·'}
                   </div>
-                  <div className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[hsl(var(--${statusToken}))] ring-2 ring-background`} />
+                  <div className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full ${statusStyles.bar} ring-2 ring-background`} />
                 </div>
 
                 {/* Main content */}
