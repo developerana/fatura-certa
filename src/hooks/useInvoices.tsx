@@ -268,7 +268,7 @@ export function useUpdateInvoice() {
           return {
             ...inv,
             ...(isCurrent && data.description !== undefined && { description: data.description }),
-            ...(isCurrent && data.category !== undefined && { category: data.category }),
+            
             ...(isCurrent && data.totalAmount !== undefined && { totalAmount: data.totalAmount, remainingBalance: data.totalAmount - inv.totalPaid }),
             ...(isCurrent && data.dueDate !== undefined && { dueDate: data.dueDate }),
             ...(isCurrent && data.referenceMonth !== undefined && { referenceMonth: data.referenceMonth }),
